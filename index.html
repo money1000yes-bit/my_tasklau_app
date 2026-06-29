@@ -39,16 +39,12 @@
             background: #f2f2f7;
         }
         .content::-webkit-scrollbar { width: 0; }
-        
-        /* Страницы */
         .page { display: none; animation: fade 0.2s ease; }
         .page.active { display: block; }
         @keyframes fade {
             from { opacity: 0.6; transform: translateY(6px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        /* Вкладки */
         .tab-bar {
             position: absolute;
             bottom: 0;
@@ -75,8 +71,6 @@
         }
         .tab-item .icon { font-size: 22px; margin-bottom: 2px; }
         .tab-item.active { color: #007aff; }
-
-        /* Карточки */
         .card {
             background: #ffffff;
             border-radius: 14px;
@@ -104,8 +98,6 @@
             color: #007aff;
             border: 1px solid #007aff;
         }
-        
-        /* Шапка заданий */
         .section-header {
             display: flex;
             justify-content: space-between;
@@ -114,8 +106,6 @@
         }
         .section-header h2 { font-size: 20px; font-weight: 700; }
         .premium-badge { color: #ff9500; font-weight: 700; font-size: 16px; }
-        
-        /* Фильтры */
         .filter-row {
             display: flex;
             gap: 8px;
@@ -133,8 +123,6 @@
             cursor: pointer;
         }
         .filter-btn.active { background: #007aff; color: #fff; }
-        
-        /* Задание */
         .task-item .top {
             display: flex;
             justify-content: space-between;
@@ -152,8 +140,6 @@
         .task-item .reward { font-weight: 700; font-size: 16px; color: #007aff; margin-top: 4px; }
         .task-item .sub { font-size: 12px; color: #8e8e93; }
         .task-item .btn-wrap { margin-top: 8px; display: flex; gap: 8px; }
-        
-        /* Бонусы */
         .ref-stat {
             display: flex;
             justify-content: space-around;
@@ -169,8 +155,6 @@
             text-align: center;
             margin: 8px 0;
         }
-
-        /* Профиль */
         .profile-header {
             display: flex;
             align-items: center;
@@ -214,8 +198,6 @@
             margin-top: 16px;
         }
         .profile-actions .btn { width: 100%; text-align: center; padding: 12px; }
-
-        /* Лидеры */
         .leaderboard {
             margin-top: 16px;
             background: #fff;
@@ -244,8 +226,6 @@
         .lb-item .pos { font-weight: 600; color: #8e8e93; width: 30px; }
         .lb-item .name { flex: 1; font-weight: 500; }
         .lb-item .sum { font-weight: 600; color: #007aff; }
-
-        /* Модалка вывода */
         .modal-overlay {
             display: none;
             position: absolute;
@@ -300,7 +280,6 @@
 <div class="app" id="app">
     <div class="content" id="content">
         
-        <!-- ===== СТРАНИЦА 1: ЗАДАНИЯ ===== -->
         <div class="page active" id="page-tasks">
             <div class="section-header">
                 <h2>Задания</h2>
@@ -350,7 +329,6 @@
             </div>
         </div>
 
-        <!-- ===== СТРАНИЦА 2: БОНУСЫ ===== -->
         <div class="page" id="page-bonus">
             <h2 style="margin-bottom:12px;">Ежедневные Рефералы</h2>
             <div class="card">
@@ -366,7 +344,6 @@
             <button class="btn btn-outline" style="width:100%;padding:12px;" onclick="alert('Правила')">📄 Правила привлечения рефералов</button>
         </div>
 
-        <!-- ===== СТРАНИЦА 3: ПРОФИЛЬ ===== -->
         <div class="page" id="page-profile">
             <div class="profile-header">
                 <div class="avatar">👤</div>
@@ -400,14 +377,12 @@
         </div>
     </div>
 
-    <!-- Вкладки -->
     <div class="tab-bar">
         <button class="tab-item active" data-page="page-tasks"><span class="icon">📋</span><span>Задания</span></button>
         <button class="tab-item" data-page="page-bonus"><span class="icon">🎁</span><span>Бонусы</span></button>
         <button class="tab-item" data-page="page-profile"><span class="icon">👤</span><span>Профиль</span></button>
     </div>
 
-    <!-- Модалка вывода -->
     <div class="modal-overlay" id="withdrawModal">
         <div class="modal">
             <h3>💸 Вывод средств</h3>
@@ -426,11 +401,9 @@
 </div>
 
 <script>
-    // Telegram
     const tg = window.Telegram.WebApp;
     if (tg) tg.expand();
 
-    // Вкладки
     document.querySelectorAll('.tab-item').forEach(tab => {
         tab.addEventListener('click', function() {
             document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
@@ -441,7 +414,6 @@
         });
     });
 
-    // Фильтры
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -449,7 +421,6 @@
         });
     });
 
-    // Лидеры
     const leaders = [
         { name: 'Снежана', sum: '15,110₽' },
         { name: 'Виктор', sum: '15,075₽' },
@@ -469,7 +440,6 @@
         lb.style.display = lb.style.display === 'none' ? 'block' : 'none';
     }
 
-    // Вывод
     function openWithdraw() { document.getElementById('withdrawModal').classList.add('open'); }
     function closeWithdraw() { document.getElementById('withdrawModal').classList.remove('open'); }
     function selectMethod(el) {
@@ -487,4 +457,4 @@
     });
 </script>
 </body>
-</html>
+                                            </html>
