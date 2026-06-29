@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои задания</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--tg-theme-hint-color, #e0e0e0);
+        }
+        .balance {
+            background: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .task-card {
+            background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .task-title {
+            font-size: 16px;
+            font-weight: 500;
+        }
+        .task-reward {
+            color: var(--tg-theme-button-color, #3390ec);
+            font-weight: 600;
+        }
+        .btn {
+            background: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--tg-theme-hint-color, #999);
+        }
+        .empty .emoji { font-size: 48px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>📋 Задания</h2>
+        <div class="balance">💰 0 монет</div>
+    </div>
+    
+    <div id="tasksContainer">
+        <div class="empty">
+            <div class="emoji">🚀</div>
+            <p>Скоро здесь появятся задания!</p>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        const tasks = [
+            { id: 1, title: "Подпишись на канал", reward: 50 },
+            { id: 2, title: "Сделай репост", reward: 30 },
+            { id: 3, title: "Ответь на опрос", reward: 20 }
+        ];
+
+        const adTasks = [
+            { id: 101, title: "📺 Подпишись на @BestChannel", reward: 50 },
+            { id: 102, title: "📱 Установи приложение X", reward: 100 }
+        ];
+
+        let balance = 0;
+
+        function renderTasks() {
+            const container = document.getElementById('tasksContainer');
+            let html = '';
+
+            tasks.forEach(task => {
+                html += `
+                    <div class="task-card">
+                        <div>
+                            <div class="task-title">${task.title}</div>
+                            <div class="task-reward">+${task.reward} монет</div>
+                        </div>
+                        <button class="btn" onclick="completeTask(${task.id})">Выполнить</button>
+                    </div>
+                `;
+            });
+
+            adTasks.forEach(task => {
+                html += `
+                    <div class="task-card" style="border: 2px solid #ffd700;">
+                        <div>
+                            <div class="task-title">${task.title}</div>
+                            <div class="task-reward">+${task.reward} монет</div>
+                        </div>
+                        <button class="btn" onclick="completeTask(${task.id})">Выполнить</button>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function completeTask(taskId) {
+            const allTasks = [...tasks, ...adTasks];
+            const task = allTasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            balance += task.reward;
+            document.querySelector('.balance').textContent = `💰 ${balance} монет`;
+            alert(`✅ Задание выполнено! +${task.reward} монет`);
+        }
+
+        renderTasks();
+    </script>
+</body>
+  </html>
