@@ -43,8 +43,6 @@
             from { opacity: 0.6; transform: translateY(6px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        /* Таб бар */
         .tab-bar {
             position: absolute;
             bottom: 0;
@@ -57,7 +55,6 @@
             justify-content: space-around;
             align-items: center;
             z-index: 10;
-            backdrop-filter: blur(10px);
         }
         .tab-item {
             display: flex;
@@ -69,22 +66,16 @@
             border: none;
             cursor: pointer;
             padding: 4px 12px;
-            transition: 0.2s;
         }
         .tab-item .icon { font-size: 22px; margin-bottom: 2px; }
         .tab-item.active { color: #40a7ff; }
-
-        /* Карточки */
         .card {
             background: #1c1c1e;
             border-radius: 16px;
             padding: 16px;
             margin-bottom: 12px;
             border: 1px solid #2c2c2e;
-            transition: 0.2s;
         }
-        .card:hover { border-color: #40a7ff33; }
-
         .btn {
             background: #007aff;
             color: #fff;
@@ -94,18 +85,14 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.15s;
         }
-        .btn:active { opacity: 0.7; transform: scale(0.97); }
+        .btn:active { opacity: 0.7; }
         .btn-success { background: #34c759; }
         .btn-outline {
             background: transparent;
             color: #40a7ff;
             border: 1px solid #40a7ff;
         }
-        .btn-outline:hover { background: #40a7ff11; }
-
-        /* Шапка */
         .section-header {
             display: flex;
             justify-content: space-between;
@@ -125,8 +112,6 @@
             padding: 4px 12px;
             border-radius: 20px;
         }
-
-        /* Фильтры */
         .filter-row {
             display: flex;
             gap: 8px;
@@ -142,15 +127,12 @@
             font-weight: 500;
             color: #8e8e93;
             cursor: pointer;
-            transition: 0.2s;
         }
         .filter-btn.active {
             background: #007aff;
             color: #fff;
             border-color: #007aff;
         }
-
-        /* Задания */
         .task-item .top {
             display: flex;
             justify-content: space-between;
@@ -183,8 +165,6 @@
             margin-top: 2px;
         }
         .task-item .btn-wrap { margin-top: 10px; display: flex; gap: 8px; }
-
-        /* Бонусы */
         .ref-stat {
             display: flex;
             justify-content: space-around;
@@ -207,8 +187,6 @@
             text-align: center;
             margin: 12px 0;
         }
-
-        /* Профиль */
         .profile-header {
             display: flex;
             align-items: center;
@@ -263,8 +241,6 @@
             margin-top: 16px;
         }
         .profile-actions .btn { width: 100%; text-align: center; padding: 14px; }
-
-        /* Таблица лидеров */
         .leaderboard {
             margin-top: 16px;
             background: #1c1c1e;
@@ -295,8 +271,6 @@
         .lb-item .pos { font-weight: 600; color: #8e8e93; width: 30px; }
         .lb-item .name { flex: 1; font-weight: 500; color: #fff; }
         .lb-item .sum { font-weight: 600; color: #40a7ff; }
-
-        /* Модалка вывода */
         .modal-overlay {
             display: none;
             position: absolute;
@@ -306,7 +280,6 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
-            backdrop-filter: blur(4px);
         }
         .modal-overlay.open { display: flex; }
         .modal {
@@ -348,7 +321,6 @@
             color: #8e8e93;
             font-weight: 500;
             cursor: pointer;
-            transition: 0.2s;
         }
         .modal .method button.active {
             border-color: #40a7ff;
@@ -369,7 +341,6 @@
 <body>
 <div class="app">
     <div class="content">
-        <!-- ЗАДАНИЯ -->
         <div class="page active" id="page-tasks">
             <div class="section-header">
                 <h2>Задания</h2>
@@ -415,8 +386,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- БОНУСЫ -->
         <div class="page" id="page-bonus">
             <h2 style="color:#fff;margin-bottom:12px;">Ежедневные Рефералы</h2>
             <div class="card">
@@ -431,8 +400,6 @@
             <button class="btn" style="width:100%;padding:12px;margin:8px 0;" onclick="alert('Ссылка скопирована')">📤 Пригласить друзей</button>
             <button class="btn btn-outline" style="width:100%;padding:12px;" onclick="alert('Правила')">📄 Правила привлечения рефералов</button>
         </div>
-
-        <!-- ПРОФИЛЬ -->
         <div class="page" id="page-profile">
             <div class="profile-header">
                 <div class="avatar">👤</div>
@@ -465,15 +432,11 @@
             </div>
         </div>
     </div>
-
-    <!-- ВКЛАДКИ -->
     <div class="tab-bar">
         <button class="tab-item active" data-page="page-tasks"><span class="icon">📋</span><span>Задания</span></button>
         <button class="tab-item" data-page="page-bonus"><span class="icon">🎁</span><span>Бонусы</span></button>
         <button class="tab-item" data-page="page-profile"><span class="icon">👤</span><span>Профиль</span></button>
     </div>
-
-    <!-- МОДАЛКА ВЫВОДА -->
     <div class="modal-overlay" id="withdrawModal">
         <div class="modal">
             <h3>💸 Вывод средств</h3>
@@ -490,11 +453,9 @@
         </div>
     </div>
 </div>
-
 <script>
     const tg = window.Telegram.WebApp;
     if (tg) tg.expand();
-
     document.querySelectorAll('.tab-item').forEach(tab => {
         tab.addEventListener('click', function() {
             document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
@@ -504,14 +465,12 @@
             document.getElementById('leaderboard').style.display = 'none';
         });
     });
-
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
         });
     });
-
     const leaders = [
         { name: 'Снежана', sum: '15,110₽' },
         { name: 'Виктор', sum: '15,075₽' },
@@ -525,12 +484,10 @@
     document.getElementById('lb-list').innerHTML = leaders.map((l,i) =>
         `<div class="lb-item"><span class="pos">#${i+1}</span><span class="name">${l.name}</span><span class="sum">${l.sum}</span></div>`
     ).join('');
-
     function toggleLeaderboard() {
         const lb = document.getElementById('leaderboard');
         lb.style.display = lb.style.display === 'none' ? 'block' : 'none';
     }
-
     function openWithdraw() { document.getElementById('withdrawModal').classList.add('open'); }
     function closeWithdraw() { document.getElementById('withdrawModal').classList.remove('open'); }
     function selectMethod(el) {
