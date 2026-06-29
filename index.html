@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Задания</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
@@ -12,18 +12,15 @@
             box-sizing: border-box;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
-
         body {
             background: #f2f2f7;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 0;
             margin: 0;
+            padding: 0;
         }
-
-        /* Телефон-контейнер */
         .app {
             width: 100%;
             max-width: 390px;
@@ -34,46 +31,35 @@
             flex-direction: column;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 0 30px rgba(0,0,0,0.1);
-            border-radius: 0;
         }
-
-        /* Контент */
         .content {
             flex: 1;
             overflow-y: auto;
             padding: 16px 16px 80px 16px;
             background: #f2f2f7;
         }
-
-        /* Скрываем скролл */
         .content::-webkit-scrollbar { width: 0; }
-
-        /* ===== СТРАНИЦЫ ===== */
-        .page {
-            display: none;
-            animation: fade 0.2s ease;
-        }
+        
+        /* Страницы */
+        .page { display: none; animation: fade 0.2s ease; }
         .page.active { display: block; }
-
         @keyframes fade {
             from { opacity: 0.6; transform: translateY(6px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* ===== ВКЛАДКИ (Tab Bar) ===== */
+        /* Вкладки */
         .tab-bar {
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
-            display: flex;
             background: #ffffff;
             border-top: 1px solid #e5e5ea;
             padding: 8px 0 12px 0;
+            display: flex;
             justify-content: space-around;
             align-items: center;
-            backdrop-filter: blur(10px);
             z-index: 10;
         }
         .tab-item {
@@ -85,45 +71,21 @@
             background: none;
             border: none;
             cursor: pointer;
-            transition: 0.2s;
             padding: 4px 12px;
         }
-        .tab-item .icon {
-            font-size: 22px;
-            margin-bottom: 2px;
-        }
-        .tab-item.active {
-            color: #007aff;
-        }
-        .tab-item.active .icon {
-            color: #007aff;
-        }
+        .tab-item .icon { font-size: 22px; margin-bottom: 2px; }
+        .tab-item.active { color: #007aff; }
 
-        /* ===== ОБЩИЕ КАРТОЧКИ ===== */
+        /* Карточки */
         .card {
             background: #ffffff;
             border-radius: 14px;
             padding: 14px 16px;
             margin-bottom: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
-        .card-title {
-            font-weight: 600;
-            font-size: 15px;
-            color: #000;
-        }
-        .card-desc {
-            font-size: 13px;
-            color: #6c6c70;
-            margin-top: 4px;
-            line-height: 1.4;
-        }
-        .card-reward {
-            font-weight: 700;
-            font-size: 16px;
-            color: #007aff;
-            margin-top: 6px;
-        }
+        .card-title { font-weight: 600; font-size: 15px; color: #000; }
+        .card-desc { font-size: 13px; color: #6c6c70; margin-top: 4px; }
+        .card-reward { font-weight: 700; font-size: 16px; color: #007aff; margin-top: 6px; }
         .btn {
             background: #007aff;
             color: #fff;
@@ -133,39 +95,27 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.15s;
-            display: inline-block;
-            text-align: center;
         }
-        .btn:active { opacity: 0.7; transform: scale(0.97); }
+        .btn:active { opacity: 0.7; }
+        .btn-success { background: #34c759; }
+        .btn-gold { background: #ff9500; }
         .btn-outline {
             background: transparent;
             color: #007aff;
             border: 1px solid #007aff;
         }
-        .btn-success {
-            background: #34c759;
-        }
-        .btn-gold {
-            background: #ff9500;
-        }
-
-        /* ===== ЭКРАН 1: ЗАДАНИЯ ===== */
+        
+        /* Шапка заданий */
         .section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
         }
-        .section-header h2 {
-            font-size: 20px;
-            font-weight: 700;
-        }
-        .premium-badge {
-            color: #ff9500;
-            font-weight: 700;
-            font-size: 16px;
-        }
+        .section-header h2 { font-size: 20px; font-weight: 700; }
+        .premium-badge { color: #ff9500; font-weight: 700; font-size: 16px; }
+        
+        /* Фильтры */
         .filter-row {
             display: flex;
             gap: 8px;
@@ -182,26 +132,15 @@
             color: #3a3a3c;
             cursor: pointer;
         }
-        .filter-btn.active {
-            background: #007aff;
-            color: #fff;
-        }
-
-        .task-item {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
+        .filter-btn.active { background: #007aff; color: #fff; }
+        
+        /* Задание */
         .task-item .top {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
         }
-        .task-item .title {
-            font-weight: 600;
-            font-size: 15px;
-            flex: 1;
-        }
+        .task-item .title { font-weight: 600; font-size: 15px; }
         .task-item .badge {
             background: #ff3b30;
             color: #fff;
@@ -210,37 +149,19 @@
             padding: 2px 10px;
             border-radius: 12px;
         }
-        .task-item .reward {
-            font-weight: 700;
-            font-size: 16px;
-            color: #007aff;
-        }
-        .task-item .sub {
-            font-size: 12px;
-            color: #8e8e93;
-        }
-        .task-item .btn-wrap {
-            margin-top: 8px;
-            display: flex;
-            gap: 8px;
-        }
-
-        /* ===== ЭКРАН 2: БОНУСЫ (РЕФЕРАЛЫ) ===== */
+        .task-item .reward { font-weight: 700; font-size: 16px; color: #007aff; margin-top: 4px; }
+        .task-item .sub { font-size: 12px; color: #8e8e93; }
+        .task-item .btn-wrap { margin-top: 8px; display: flex; gap: 8px; }
+        
+        /* Бонусы */
         .ref-stat {
             display: flex;
             justify-content: space-around;
             text-align: center;
             margin: 12px 0;
         }
-        .ref-stat .num {
-            font-size: 22px;
-            font-weight: 700;
-            color: #000;
-        }
-        .ref-stat .label {
-            font-size: 12px;
-            color: #8e8e93;
-        }
+        .ref-stat .num { font-size: 22px; font-weight: 700; color: #000; }
+        .ref-stat .label { font-size: 12px; color: #8e8e93; }
         .ref-earn {
             font-size: 26px;
             font-weight: 700;
@@ -249,7 +170,7 @@
             margin: 8px 0;
         }
 
-        /* ===== ЭКРАН 3: ПРОФИЛЬ ===== */
+        /* Профиль */
         .profile-header {
             display: flex;
             align-items: center;
@@ -268,10 +189,7 @@
             color: #fff;
             font-weight: 600;
         }
-        .profile-name {
-            font-size: 20px;
-            font-weight: 700;
-        }
+        .profile-name { font-size: 20px; font-weight: 700; }
         .profile-rank {
             font-size: 14px;
             color: #8e8e93;
@@ -280,38 +198,24 @@
             gap: 6px;
             cursor: pointer;
         }
-        .profile-rank .medal {
-            font-size: 20px;
-        }
+        .profile-rank .medal { font-size: 20px; }
         .profile-stats {
             display: flex;
             gap: 20px;
             margin: 12px 0;
         }
-        .profile-stats .item {
-            text-align: center;
-        }
-        .profile-stats .num {
-            font-size: 18px;
-            font-weight: 700;
-        }
-        .profile-stats .lbl {
-            font-size: 12px;
-            color: #8e8e93;
-        }
+        .profile-stats .item { text-align: center; }
+        .profile-stats .num { font-size: 18px; font-weight: 700; }
+        .profile-stats .lbl { font-size: 12px; color: #8e8e93; }
         .profile-actions {
             display: flex;
             flex-direction: column;
             gap: 10px;
             margin-top: 16px;
         }
-        .profile-actions .btn {
-            width: 100%;
-            text-align: center;
-            padding: 12px;
-        }
+        .profile-actions .btn { width: 100%; text-align: center; padding: 12px; }
 
-        /* ===== ТАБЛИЦА ЛИДЕРОВ (внутри профиля) ===== */
+        /* Лидеры */
         .leaderboard {
             margin-top: 16px;
             background: #fff;
@@ -324,9 +228,7 @@
             align-items: center;
             margin-bottom: 12px;
         }
-        .leaderboard .top h3 {
-            font-size: 18px;
-        }
+        .leaderboard .top h3 { font-size: 18px; }
         .leaderboard .close-btn {
             background: none;
             border: none;
@@ -339,21 +241,11 @@
             padding: 8px 0;
             border-bottom: 1px solid #f2f2f7;
         }
-        .lb-item .pos {
-            font-weight: 600;
-            color: #8e8e93;
-            width: 30px;
-        }
-        .lb-item .name {
-            flex: 1;
-            font-weight: 500;
-        }
-        .lb-item .sum {
-            font-weight: 600;
-            color: #007aff;
-        }
+        .lb-item .pos { font-weight: 600; color: #8e8e93; width: 30px; }
+        .lb-item .name { flex: 1; font-weight: 500; }
+        .lb-item .sum { font-weight: 600; color: #007aff; }
 
-        /* ===== ВЫВОД (попап) ===== */
+        /* Модалка вывода */
         .modal-overlay {
             display: none;
             position: absolute;
@@ -371,13 +263,8 @@
             padding: 24px;
             width: 100%;
             max-width: 340px;
-            max-height: 90vh;
-            overflow-y: auto;
         }
-        .modal h3 {
-            font-size: 20px;
-            margin-bottom: 12px;
-        }
+        .modal h3 { font-size: 20px; margin-bottom: 12px; }
         .modal input {
             width: 100%;
             padding: 12px;
@@ -405,51 +292,27 @@
             border-color: #007aff;
             background: #e9f2ff;
         }
-        .modal .btn {
-            width: 100%;
-            padding: 14px;
-        }
-
-        /* ===== Стили для Премиум ===== */
-        .premium-tag {
-            background: #ff9500;
-            color: #fff;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 10px;
-            border-radius: 12px;
-            margin-left: 6px;
-        }
-
-        /* ===== Адаптив ===== */
-        @media (max-width: 420px) {
-            .app { max-height: 100vh; border-radius: 0; }
-        }
+        .modal .btn { width: 100%; padding: 14px; }
+        .modal .btn-outline { margin-top: 8px; background: #f2f2f7; border: none; }
     </style>
 </head>
 <body>
 <div class="app" id="app">
-
-    <!-- КОНТЕНТ -->
     <div class="content" id="content">
-
-        <!-- ==================== СТРАНИЦА 1: ЗАДАНИЯ ==================== -->
+        
+        <!-- ===== СТРАНИЦА 1: ЗАДАНИЯ ===== -->
         <div class="page active" id="page-tasks">
-            <!-- Шапка -->
             <div class="section-header">
                 <h2>Задания</h2>
                 <span class="premium-badge">Премиум</span>
             </div>
-
-            <!-- Фильтры -->
             <div class="filter-row">
                 <button class="filter-btn active">Новые</button>
                 <button class="filter-btn">Дешевые</button>
                 <button class="filter-btn">Дорогие</button>
                 <button class="filter-btn">Быстрые</button>
             </div>
-
-            <!-- Карточка задания 1 (ежедневное) -->
+            
             <div class="card">
                 <div class="task-item">
                     <div class="top">
@@ -458,13 +321,10 @@
                     </div>
                     <div class="sub">0/20 просмотров сегодня · первые 10 по 0.5₽, потом по 1₽</div>
                     <div class="reward">+5₽</div>
-                    <div class="btn-wrap">
-                        <button class="btn btn-success" onclick="alert('Реклама запущена')">Выполнить</button>
-                    </div>
+                    <div class="btn-wrap"><button class="btn btn-success" onclick="alert('Реклама')">Выполнить</button></div>
                 </div>
             </div>
-
-            <!-- Карточка задания 2 (основное) -->
+            
             <div class="card">
                 <div class="task-item">
                     <div class="top">
@@ -473,13 +333,10 @@
                     </div>
                     <div class="sub">ТОЛЬКО РУССКИЕ НОМЕРА · Записать звонок</div>
                     <div class="reward">+400₽</div>
-                    <div class="btn-wrap">
-                        <button class="btn" onclick="alert('Задание взято!')">Взять</button>
-                    </div>
+                    <div class="btn-wrap"><button class="btn" onclick="alert('Задание взято')">Взять</button></div>
                 </div>
             </div>
-
-            <!-- Карточка задания 3 -->
+            
             <div class="card">
                 <div class="task-item">
                     <div class="top">
@@ -488,47 +345,28 @@
                     </div>
                     <div class="sub">Не забудьте сделать скриншот · 5 min</div>
                     <div class="reward">+5₽</div>
-                    <div class="btn-wrap">
-                        <button class="btn" onclick="alert('Переход на канал')">Продолжить</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Карточка задания 4 -->
-            <div class="card">
-                <div class="task-item">
-                    <div class="top">
-                        <span class="title">🌐 Сайт · Я. Карты</span>
-                        <span class="badge">Премиум</span>
-                    </div>
-                    <div class="sub">Оставить заявку и ответить на звонок</div>
-                    <div class="reward">+150₽</div>
-                    <div class="btn-wrap">
-                        <button class="btn btn-gold" onclick="alert('Премиум задание')">Выполнить</button>
-                    </div>
+                    <div class="btn-wrap"><button class="btn" onclick="alert('Переход на канал')">Продолжить</button></div>
                 </div>
             </div>
         </div>
 
-        <!-- ==================== СТРАНИЦА 2: БОНУСЫ (РЕФЕРАЛЫ) ==================== -->
+        <!-- ===== СТРАНИЦА 2: БОНУСЫ ===== -->
         <div class="page" id="page-bonus">
             <h2 style="margin-bottom:12px;">Ежедневные Рефералы</h2>
             <div class="card">
                 <p style="font-size:14px;color:#3a3a3c;">С реферала 1 Lvl ты получаешь <strong>20%</strong> от его заработка, а с приглашенных им 2 Lvl — <strong>5%</strong>.</p>
                 <p style="font-size:13px;color:#8e8e93;margin-top:6px;">Реферал засчитывается после выполнения Ежедневного задания. За одного приглашенного — <strong>10₽</strong>.</p>
             </div>
-
             <div class="ref-stat">
                 <div><div class="num">21</div><div class="label">Рефералы 1 Lvl</div></div>
                 <div><div class="num">50</div><div class="label">Рефералы 2 Lvl</div></div>
             </div>
             <div class="ref-earn">776.85₽ <span style="font-size:14px;font-weight:400;color:#8e8e93;">заработано</span></div>
-
             <button class="btn" style="width:100%;padding:12px;margin:8px 0;" onclick="alert('Ссылка скопирована')">📤 Пригласить друзей</button>
-            <button class="btn btn-outline" style="width:100%;padding:12px;" onclick="alert('Правила открыты')">📄 Правила привлечения рефералов</button>
+            <button class="btn btn-outline" style="width:100%;padding:12px;" onclick="alert('Правила')">📄 Правила привлечения рефералов</button>
         </div>
 
-        <!-- ==================== СТРАНИЦА 3: ПРОФИЛЬ ==================== -->
+        <!-- ===== СТРАНИЦА 3: ПРОФИЛЬ ===== -->
         <div class="page" id="page-profile">
             <div class="profile-header">
                 <div class="avatar">👤</div>
@@ -539,55 +377,37 @@
                     </div>
                 </div>
             </div>
-
             <div class="card">
-                <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div style="display:flex;justify-content:space-between;">
                     <span style="font-size:16px;font-weight:600;">Баланс</span>
                     <span style="font-size:22px;font-weight:700;color:#007aff;">55₽</span>
                 </div>
             </div>
-
             <div class="profile-stats">
                 <div class="item"><div class="num">2</div><div class="lbl">Задания</div></div>
                 <div class="item"><div class="num">5</div><div class="lbl">Заработки</div></div>
                 <div class="item"><div class="num">19</div><div class="lbl">Выполнено</div></div>
             </div>
-
             <div class="profile-actions">
                 <button class="btn" onclick="openWithdraw()">💸 Вывод</button>
                 <button class="btn btn-outline" onclick="toggleLeaderboard()">🏆 Таблица лидеров</button>
-                <button class="btn btn-outline" style="background:#f2f2f7;color:#3a3a3c;border:none;" onclick="alert('F.A.Q / Правила')">📖 F.A.Q / Правила сервиса</button>
+                <button class="btn btn-outline" style="background:#f2f2f7;color:#3a3a3c;border:none;" onclick="alert('F.A.Q')">📖 F.A.Q / Правила сервиса</button>
             </div>
-
-            <!-- Таблица лидеров (внутри профиля, скрыта по умолчанию) -->
             <div class="leaderboard" id="leaderboard" style="display:none;">
-                <div class="top">
-                    <h3>🏆 Таблица Лидеров</h3>
-                    <button class="close-btn" onclick="toggleLeaderboard()">✕</button>
-                </div>
+                <div class="top"><h3>🏆 Таблица Лидеров</h3><button class="close-btn" onclick="toggleLeaderboard()">✕</button></div>
                 <div id="lb-list"></div>
             </div>
         </div>
-
-    </div> <!-- конец .content -->
-
-    <!-- ==================== ВКЛАДКИ (TAB BAR) ==================== -->
-    <div class="tab-bar">
-        <button class="tab-item active" data-page="page-tasks">
-            <span class="icon">📋</span>
-            <span>Задания</span>
-        </button>
-        <button class="tab-item" data-page="page-bonus">
-            <span class="icon">🎁</span>
-            <span>Бонусы</span>
-        </button>
-        <button class="tab-item" data-page="page-profile">
-            <span class="icon">👤</span>
-            <span>Профиль</span>
-        </button>
     </div>
 
-    <!-- ==================== МОДАЛКА ВЫВОДА ==================== -->
+    <!-- Вкладки -->
+    <div class="tab-bar">
+        <button class="tab-item active" data-page="page-tasks"><span class="icon">📋</span><span>Задания</span></button>
+        <button class="tab-item" data-page="page-bonus"><span class="icon">🎁</span><span>Бонусы</span></button>
+        <button class="tab-item" data-page="page-profile"><span class="icon">👤</span><span>Профиль</span></button>
+    </div>
+
+    <!-- Модалка вывода -->
     <div class="modal-overlay" id="withdrawModal">
         <div class="modal">
             <h3>💸 Вывод средств</h3>
@@ -600,38 +420,28 @@
                 <button onclick="selectMethod(this)">🪙 CryptoBot</button>
             </div>
             <button class="btn" onclick="withdraw()">Вывести</button>
-            <button class="btn btn-outline" style="margin-top:8px;background:#f2f2f7;border:none;" onclick="closeWithdraw()">Отмена</button>
+            <button class="btn btn-outline" style="margin-top:8px;" onclick="closeWithdraw()">Отмена</button>
         </div>
     </div>
-
 </div>
 
 <script>
-    // ===== Telegram WebApp =====
+    // Telegram
     const tg = window.Telegram.WebApp;
     if (tg) tg.expand();
 
-    // ===== Переключение вкладок =====
-    const tabs = document.querySelectorAll('.tab-item');
-    const pages = {
-        tasks: document.getElementById('page-tasks'),
-        bonus: document.getElementById('page-bonus'),
-        profile: document.getElementById('page-profile')
-    };
-
-    tabs.forEach(tab => {
+    // Вкладки
+    document.querySelectorAll('.tab-item').forEach(tab => {
         tab.addEventListener('click', function() {
-            tabs.forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
             this.classList.add('active');
-            const pageId = this.dataset.page;
-            Object.values(pages).forEach(p => p.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-            // Закрываем таблицу лидеров при переключении
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(this.dataset.page).classList.add('active');
             document.getElementById('leaderboard').style.display = 'none';
         });
     });
 
-    // ===== Фильтры (просто визуально) =====
+    // Фильтры
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -639,7 +449,7 @@
         });
     });
 
-    // ===== Таблица лидеров =====
+    // Лидеры
     const leaders = [
         { name: 'Снежана', sum: '15,110₽' },
         { name: 'Виктор', sum: '15,075₽' },
@@ -650,46 +460,28 @@
         { name: 'БЫ', sum: '228₽' },
         { name: 'Ольга Жуворка', sum: '15,000₽' }
     ];
-
-    function renderLeaderboard() {
-        const list = document.getElementById('lb-list');
-        list.innerHTML = leaders.map((l, i) =>
-            `<div class="lb-item">
-                <span class="pos">#${i+1}</span>
-                <span class="name">${l.name}</span>
-                <span class="sum">${l.sum}</span>
-            </div>`
-        ).join('');
-    }
-    renderLeaderboard();
+    document.getElementById('lb-list').innerHTML = leaders.map((l,i) =>
+        `<div class="lb-item"><span class="pos">#${i+1}</span><span class="name">${l.name}</span><span class="sum">${l.sum}</span></div>`
+    ).join('');
 
     function toggleLeaderboard() {
         const lb = document.getElementById('leaderboard');
         lb.style.display = lb.style.display === 'none' ? 'block' : 'none';
     }
 
-    // ===== Вывод =====
-    function openWithdraw() {
-        document.getElementById('withdrawModal').classList.add('open');
-    }
-    function closeWithdraw() {
-        document.getElementById('withdrawModal').classList.remove('open');
-    }
+    // Вывод
+    function openWithdraw() { document.getElementById('withdrawModal').classList.add('open'); }
+    function closeWithdraw() { document.getElementById('withdrawModal').classList.remove('open'); }
     function selectMethod(el) {
         document.querySelectorAll('.method button').forEach(b => b.classList.remove('active'));
         el.classList.add('active');
     }
     function withdraw() {
         const amount = document.getElementById('withdrawAmount').value;
-        if (amount < 300) {
-            alert('Минимальная сумма вывода: 300₽');
-            return;
-        }
-        alert(`✅ Заявка на вывод ${amount}₽ отправлена!`);
+        if (amount < 300) { alert('Минимум 300₽'); return; }
+        alert(`✅ Заявка на ${amount}₽ отправлена`);
         closeWithdraw();
     }
-
-    // Закрытие модалки по клику вне
     document.getElementById('withdrawModal').addEventListener('click', function(e) {
         if (e.target === this) closeWithdraw();
     });
