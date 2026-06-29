@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Задания</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
@@ -77,9 +77,6 @@
             padding: 14px 16px;
             margin-bottom: 12px;
         }
-        .card-title { font-weight: 600; font-size: 15px; color: #000; }
-        .card-desc { font-size: 13px; color: #6c6c70; margin-top: 4px; }
-        .card-reward { font-weight: 700; font-size: 16px; color: #007aff; margin-top: 6px; }
         .btn {
             background: #007aff;
             color: #fff;
@@ -92,7 +89,6 @@
         }
         .btn:active { opacity: 0.7; }
         .btn-success { background: #34c759; }
-        .btn-gold { background: #ff9500; }
         .btn-outline {
             background: transparent;
             color: #007aff;
@@ -274,12 +270,16 @@
         }
         .modal .btn { width: 100%; padding: 14px; }
         .modal .btn-outline { margin-top: 8px; background: #f2f2f7; border: none; }
+        .gray-text { color: #8e8e93; }
+        .mt-2 { margin-top: 8px; }
+        .mb-2 { margin-bottom: 8px; }
+        .text-center { text-align: center; }
     </style>
 </head>
 <body>
-<div class="app" id="app">
-    <div class="content" id="content">
-        
+<div class="app">
+    <div class="content">
+        <!-- СТРАНИЦА 1: ЗАДАНИЯ -->
         <div class="page active" id="page-tasks">
             <div class="section-header">
                 <h2>Задания</h2>
@@ -291,7 +291,6 @@
                 <button class="filter-btn">Дорогие</button>
                 <button class="filter-btn">Быстрые</button>
             </div>
-            
             <div class="card">
                 <div class="task-item">
                     <div class="top">
@@ -303,7 +302,6 @@
                     <div class="btn-wrap"><button class="btn btn-success" onclick="alert('Реклама')">Выполнить</button></div>
                 </div>
             </div>
-            
             <div class="card">
                 <div class="task-item">
                     <div class="top">
@@ -315,7 +313,6 @@
                     <div class="btn-wrap"><button class="btn" onclick="alert('Задание взято')">Взять</button></div>
                 </div>
             </div>
-            
             <div class="card">
                 <div class="task-item">
                     <div class="top">
@@ -329,6 +326,7 @@
             </div>
         </div>
 
+        <!-- СТРАНИЦА 2: БОНУСЫ -->
         <div class="page" id="page-bonus">
             <h2 style="margin-bottom:12px;">Ежедневные Рефералы</h2>
             <div class="card">
@@ -344,6 +342,7 @@
             <button class="btn btn-outline" style="width:100%;padding:12px;" onclick="alert('Правила')">📄 Правила привлечения рефералов</button>
         </div>
 
+        <!-- СТРАНИЦА 3: ПРОФИЛЬ -->
         <div class="page" id="page-profile">
             <div class="profile-header">
                 <div class="avatar">👤</div>
@@ -377,16 +376,18 @@
         </div>
     </div>
 
+    <!-- ВКЛАДКИ -->
     <div class="tab-bar">
         <button class="tab-item active" data-page="page-tasks"><span class="icon">📋</span><span>Задания</span></button>
         <button class="tab-item" data-page="page-bonus"><span class="icon">🎁</span><span>Бонусы</span></button>
         <button class="tab-item" data-page="page-profile"><span class="icon">👤</span><span>Профиль</span></button>
     </div>
 
+    <!-- МОДАЛКА ВЫВОДА -->
     <div class="modal-overlay" id="withdrawModal">
         <div class="modal">
             <h3>💸 Вывод средств</h3>
-            <p style="color:#8e8e93;font-size:14px;">Баланс: <strong>55₽</strong></p>
+            <p class="gray-text" style="font-size:14px;">Баланс: <strong>55₽</strong></p>
             <input type="number" id="withdrawAmount" placeholder="Сумма" value="300" />
             <p style="font-size:12px;color:#ff3b30;">Минимальная сумма: 300₽</p>
             <div class="method">
@@ -404,6 +405,7 @@
     const tg = window.Telegram.WebApp;
     if (tg) tg.expand();
 
+    // Переключение вкладок
     document.querySelectorAll('.tab-item').forEach(tab => {
         tab.addEventListener('click', function() {
             document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
@@ -414,6 +416,7 @@
         });
     });
 
+    // Фильтры
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -421,6 +424,7 @@
         });
     });
 
+    // Таблица лидеров
     const leaders = [
         { name: 'Снежана', sum: '15,110₽' },
         { name: 'Виктор', sum: '15,075₽' },
@@ -440,6 +444,7 @@
         lb.style.display = lb.style.display === 'none' ? 'block' : 'none';
     }
 
+    // Вывод
     function openWithdraw() { document.getElementById('withdrawModal').classList.add('open'); }
     function closeWithdraw() { document.getElementById('withdrawModal').classList.remove('open'); }
     function selectMethod(el) {
@@ -457,4 +462,4 @@
     });
 </script>
 </body>
-                                            </html>
+</html>
