@@ -3,319 +3,336 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Задания</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Telegram Mini App - iOS 17 Style</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-        body { background: #0a0a0a; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .app { width: 100%; max-width: 390px; height: 100vh; max-height: 844px; background: #0a0a0a; display: flex; flex-direction: column; position: relative; overflow: hidden; }
-        .content { flex: 1; overflow-y: auto; padding: 16px 16px 80px 16px; background: #0a0a0a; }
-        .content::-webkit-scrollbar { width: 0; }
-        .page { display: none; animation: fade 0.2s ease; }
-        .page.active { display: block; }
-        @keyframes fade { from { opacity: 0.6; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-        .tab-bar { position: absolute; bottom: 0; left: 0; right: 0; background: #1c1c1e; border-top: 1px solid #2c2c2e; padding: 8px 0 12px 0; display: flex; justify-content: space-around; align-items: center; z-index: 10; }
-        .tab-item { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: #8e8e93; background: none; border: none; cursor: pointer; padding: 4px 12px; }
-        .tab-item .icon { font-size: 22px; margin-bottom: 2px; }
-        .tab-item.active { color: #40a7ff; }
-        .card { background: #1c1c1e; border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid #2c2c2e; }
-        .btn { background: #007aff; color: #fff; border: none; border-radius: 12px; padding: 10px 20px; font-size: 14px; font-weight: 600; cursor: pointer; }
-        .btn:active { opacity: 0.7; }
-        .btn-success { background: #34c759; }
-        .btn-outline { background: transparent; color: #40a7ff; border: 1px solid #40a7ff; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .section-header h2 { font-size: 22px; font-weight: 700; color: #fff; }
-        .premium-badge { color: #40a7ff; font-weight: 700; font-size: 16px; background: #40a7ff22; padding: 4px 12px; border-radius: 20px; }
-        .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
-        .filter-btn { background: #1c1c1e; border: 1px solid #2c2c2e; border-radius: 20px; padding: 6px 16px; font-size: 13px; font-weight: 500; color: #8e8e93; cursor: pointer; }
-        .filter-btn.active { background: #007aff; color: #fff; border-color: #007aff; }
-        .task-item .top { display: flex; justify-content: space-between; align-items: flex-start; }
-        .task-item .title { font-weight: 600; font-size: 15px; color: #fff; }
-        .task-item .badge { background: #ff3b30; color: #fff; font-size: 11px; font-weight: 700; padding: 2px 10px; border-radius: 12px; }
-        .task-item .badge.gold { background: #ff9500; }
-        .task-item .badge.blue { background: #007aff; }
-        .task-item .reward { font-weight: 700; font-size: 16px; color: #40a7ff; margin-top: 4px; }
-        .task-item .sub { font-size: 12px; color: #8e8e93; margin-top: 2px; }
-        .task-item .btn-wrap { margin-top: 10px; display: flex; gap: 8px; }
-        .ref-stat { display: flex; justify-content: space-around; text-align: center; margin: 16px 0; }
-        .ref-stat .num { font-size: 24px; font-weight: 700; color: #fff; }
-        .ref-stat .label { font-size: 12px; color: #8e8e93; }
-        .ref-earn { font-size: 28px; font-weight: 700; color: #40a7ff; text-align: center; margin: 12px 0; }
-        .profile-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
-        .avatar { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #007aff, #40a7ff); display: flex; align-items: center; justify-content: center; font-size: 30px; color: #fff; font-weight: 600; }
-        .profile-name { font-size: 20px; font-weight: 700; color: #fff; }
-        .profile-rank { font-size: 14px; color: #8e8e93; display: flex; align-items: center; gap: 6px; cursor: pointer; }
-        .profile-rank .medal { font-size: 20px; }
-        .profile-stats { display: flex; gap: 24px; margin: 16px 0; }
-        .profile-stats .item { text-align: center; }
-        .profile-stats .num { font-size: 20px; font-weight: 700; color: #fff; }
-        .profile-stats .lbl { font-size: 12px; color: #8e8e93; }
-        .profile-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
-        .profile-actions .btn { width: 100%; text-align: center; padding: 14px; }
-        .leaderboard { margin-top: 16px; background: #1c1c1e; border-radius: 16px; padding: 16px; border: 1px solid #2c2c2e; }
-        .leaderboard .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .leaderboard .top h3 { font-size: 18px; color: #fff; }
-        .leaderboard .close-btn { background: none; border: none; font-size: 20px; color: #8e8e93; cursor: pointer; }
-        .lb-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #2c2c2e; }
-        .lb-item .pos { font-weight: 600; color: #8e8e93; width: 30px; }
-        .lb-item .name { flex: 1; font-weight: 500; color: #fff; }
-        .lb-item .sum { font-weight: 600; color: #40a7ff; }
-        .modal-overlay { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.7); z-index: 20; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(4px); }
-        .modal-overlay.open { display: flex; }
-        .modal { background: #1c1c1e; border-radius: 20px; padding: 24px; width: 100%; max-width: 340px; border: 1px solid #2c2c2e; }
-        .modal h3 { font-size: 20px; color: #fff; margin-bottom: 12px; }
-        .modal input { width: 100%; padding: 14px; background: #0a0a0a; border: 1px solid #2c2c2e; border-radius: 12px; font-size: 16px; color: #fff; margin-bottom: 12px; }
-        .modal input:focus { outline: none; border-color: #40a7ff; }
-        .modal .method { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
-        .modal .method button { flex: 1; padding: 10px; background: #0a0a0a; border: 1px solid #2c2c2e; border-radius: 12px; color: #8e8e93; font-weight: 500; cursor: pointer; }
-        .modal .method button.active { border-color: #40a7ff; background: #40a7ff22; color: #40a7ff; }
-        .modal .btn { width: 100%; padding: 14px; }
-        .modal .btn-outline { margin-top: 8px; background: transparent; border: 1px solid #2c2c2e; color: #8e8e93; }
-        .gray-text { color: #8e8e93; }
-        .text-danger { color: #ff3b30; }
-        .ref-link-box { background: #0a0a0a; padding: 10px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin: 10px 0; border: 1px solid #2c2c2e; }
-        .ref-link-box span { color: #40a7ff; font-size: 13px; word-break: break-all; flex: 1; }
-        .ref-link-box button { background: #007aff; border: none; color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; }
+        /* --- СИСТЕМНЫЕ НАСТРОЙКИ И СБРОС СТИЛЕЙ --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent; /* Отключение стандартного выделения при клике на iOS */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #1c1c1e; /* Эмуляция внешнего фона */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #ffffff;
+        }
+
+        /* --- КОНТЕЙНЕР УСТРОЙСТВА (390 x 844 px) --- */
+        .phone-frame {
+            width: 390px;
+            height: 844px;
+            background-color: #000000; /* Чистый чёрный iOS */
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            border: 4px solid #2c2c2e; /* Граница для симуляции телефона */
+            border-radius: 40px;
+        }
+
+        /* --- СТАТУС-БАР (Симуляция) --- */
+        .status-bar {
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: -0.2px;
+            z-index: 10;
+            background-color: #000000;
+        }
+        .status-bar .right-icons {
+            display: flex;
+            gap: 6px;
+        }
+
+        /* --- НАВИГАЦИОННАЯ ПАНЕЛЬ --- */
+        .nav-bar {
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            z-index: 10;
+        }
+        .nav-bar h1 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        .nav-bar .premium-btn {
+            color: #007aff;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        /* --- ОСНОВНОЙ КОНТЕНТ (СКРОЛЛ) --- */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 100px; /* Отступ под Tab Bar */
+            scrollbar-width: none; /* Прячем скроллбар для Firefox */
+        }
+        .content::-webkit-scrollbar {
+            display: none; /* Прячем скроллбар для Chrome/Safari */
+        }
+
+        /* --- ФИЛЬТРЫ (CHIPS) --- */
+        .filters-container {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .filters-container::-webkit-scrollbar {
+            display: none;
+        }
+        .chip {
+            padding: 6px 14px;
+            border-radius: 12px; /* iOS капсула */
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .chip.active {
+            background-color: #007aff;
+            color: #ffffff;
+        }
+        .chip.inactive {
+            background-color: #1c1c1e;
+            color: #8e8e93;
+        }
+
+        /* --- ЛЕНТА ЗАДАНИЙ (Apple Wallet Style) --- */
+        .task-list {
+            padding: 8px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .task-card {
+            background: rgba(28, 28, 30, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 16px; /* iOS Squircle */
+            padding: 16px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #ffffff;
+            letter-spacing: -0.2px;
+        }
+        .badge {
+            background-color: rgba(255, 59, 48, 0.15);
+            color: #ff3b30;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .card-description {
+            font-size: 12px;
+            color: #8e8e93;
+            line-height: 1.4;
+        }
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 4px;
+            padding-top: 10px;
+            border-top: 0.5px solid #2c2c2e; /* Тончайший разделитель iOS */
+        }
+        .card-reward {
+            font-size: 16px;
+            font-weight: 700;
+            color: #007aff;
+        }
+        .action-button {
+            background-color: #34c759; /* Apple Pay Green */
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.1s ease;
+        }
+        .action-button:active {
+            opacity: 0.8; /* Эффект нажатия iOS */
+        }
+
+        /* --- НИЖНЯЯ ПАНЕЛЬ (TAB BAR) --- */
+        .tab-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 83px; /* Высота под Safe Area iPhone */
+            background: rgba(28, 28, 30, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 0.5px solid #2c2c2e;
+            display: flex;
+            justify-content: space-around;
+            padding-top: 6px;
+            z-index: 100;
+        }
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #8e8e93;
+            text-decoration: none;
+            font-size: 10px;
+            font-weight: 500;
+            gap: 4px;
+            cursor: pointer;
+            width: 60px;
+        }
+        .tab-item.active {
+            color: #007aff;
+        }
+        .tab-icon {
+            font-size: 22px;
+            line-height: 1;
+            transition: text-shadow 0.2s ease;
+        }
+        .tab-item.active .tab-icon {
+            text-shadow: 0 0 10px rgba(0, 122, 255, 0.4); /* Сияние активной иконки */
+        }
+
+        /* --- HOME INDICATOR (Полоска iOS внизу) --- */
+        .home-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 134px;
+            height: 5px;
+            background-color: #ffffff;
+            border-radius: 100px;
+            z-index: 110;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
-<div class="app">
-    <div class="content">
-        <!-- ЗАДАНИЯ -->
-        <div class="page active" id="page-tasks">
-            <div class="section-header">
-                <h2>Задания</h2>
-                <span class="premium-badge">Премиум</span>
+
+    <div class="phone-frame">
+        <!-- Системный статус-бар -->
+        <div class="status-bar">
+            <span class="time">9:41</span>
+            <div class="right-icons">📶 🪫</div>
+        </div>
+
+        <!-- Навигация -->
+        <div class="nav-bar">
+            <h1>Задания</h1>
+            <span class="premium-btn">Премиум</span>
+        </div>
+
+        <!-- Контентная часть (Экран: Задания) -->
+        <div class="content">
+            
+            <!-- Горизонтальные фильтры (Chips) -->
+            <div class="filters-container">
+                <div class="chip active">Новые</div>
+                <div class="chip inactive">Дешёвые</div>
+                <div class="chip inactive">Дорогие</div>
+                <div class="chip inactive">Быстрые</div>
             </div>
-            <div class="filter-row">
-                <button class="filter-btn active">Новые</button>
-                <button class="filter-btn">Дешёвые</button>
-                <button class="filter-btn">Дорогие</button>
-                <button class="filter-btn">Быстрые</button>
-            </div>
-            <div class="card">
-                <div class="task-item">
-                    <div class="top">
-                        <span class="title">📺 Посмотреть рекламу</span>
+
+            <!-- Лента карточек (Apple Wallet style) -->
+            <div class="task-list">
+                
+                <!-- Карточка 1 -->
+                <div class="task-card">
+                    <div class="card-header">
+                        <span class="card-title">🤖 Подписка на бота</span>
                         <span class="badge">Ежедневное</span>
                     </div>
-                    <div class="sub">0/20 просмотров сегодня · первые 10 по 0.5₽, потом по 1₽</div>
-                    <div class="reward">+5₽</div>
-                    <div class="btn-wrap"><button class="btn btn-success" onclick="alert('Реклама')">Выполнить</button></div>
-                </div>
-            </div>
-            <div class="card">
-                <div class="task-item">
-                    <div class="top">
-                        <span class="title">📞 Позвонить в компанию</span>
-                        <span class="badge gold">🔥 ТОП</span>
-                    </div>
-                    <div class="sub">ТОЛЬКО РУССКИЕ НОМЕРА · Записать звонок</div>
-                    <div class="reward">+400₽</div>
-                    <div class="btn-wrap"><button class="btn" onclick="alert('Задание взято')">Взять</button></div>
-                </div>
-            </div>
-            <div class="card">
-                <div class="task-item">
-                    <div class="top">
-                        <span class="title">📱 Подписаться на канал</span>
-                        <span class="badge blue">Новое</span>
-                    </div>
-                    <div class="sub">Не забудьте сделать скриншот · 5 min</div>
-                    <div class="reward">+5₽</div>
-                    <div class="btn-wrap"><button class="btn" onclick="alert('Переход на канал')">Продолжить</button></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- БОНУСЫ -->
-        <div class="page" id="page-bonus">
-            <h2 style="color:#fff;margin-bottom:12px;">Ежедневные Рефералы</h2>
-            <div class="card">
-                <p style="font-size:14px;color:#d1d1d6;">С реферала 1 Lvl ты получаешь <strong style="color:#fff;">20%</strong> от его заработка, а с приглашенных им 2 Lvl — <strong style="color:#fff;">5%</strong>.</p>
-                <p style="font-size:13px;color:#8e8e93;margin-top:8px;">Реферал засчитывается после выполнения Ежедневного задания. За одного приглашенного — <strong style="color:#fff;">10₽</strong>.</p>
-            </div>
-            <div class="ref-stat">
-                <div><div class="num" id="ref1Count">21</div><div class="label">Рефералы 1 Lvl</div></div>
-                <div><div class="num" id="ref2Count">50</div><div class="label">Рефералы 2 Lvl</div></div>
-            </div>
-            <div class="ref-earn" id="refEarn">776.85₽ <span style="font-size:14px;font-weight:400;color:#8e8e93;">заработано</span></div>
-            
-            <div class="ref-link-box">
-                <span id="refLink">https://t.me/ваш_бот?start=ref_12345</span>
-                <button onclick="copyRefLink()">📋 Копировать</button>
-            </div>
-            
-            <button class="btn" style="width:100%;padding:12px;margin:8px 0;" onclick="shareRefLink()">📤 Пригласить друзей</button>
-            <button class="btn btn-outline" style="width:100%;padding:12px;" onclick="alert('Правила')">📄 Правила привлечения рефералов</button>
-        </div>
-
-        <!-- ПРОФИЛЬ -->
-        <div class="page" id="page-profile">
-            <div class="profile-header">
-                <div class="avatar" id="avatar">👤</div>
-                <div>
-                    <div class="profile-name" id="profileName">Алексей</div>
-                    <div class="profile-rank" onclick="toggleLeaderboard()">
-                        <span class="medal">🏆</span> <span id="rankText">#408 · Опытный Магистр</span>
+                    <p class="card-description">Запустите официального бота партнера и пройдите быструю верификацию аккаунта.</p>
+                    <div class="card-footer">
+                        <span class="card-reward">+15.00 ₽</span>
+                        <button class="action-button">Выполнить</button>
                     </div>
                 </div>
-            </div>
-            <div class="card">
-                <div style="display:flex;justify-content:space-between;">
-                    <span style="font-size:16px;font-weight:600;color:#fff;">Баланс</span>
-                    <span style="font-size:22px;font-weight:700;color:#40a7ff;" id="balanceDisplay">55₽</span>
+
+                <!-- Карточка 2 -->
+                <div class="task-card">
+                    <div class="card-header">
+                        <span class="card-title">💬 Комментарий в канале</span>
+                        <span class="badge" style="background-color: rgba(0, 122, 255, 0.15); color: #007aff;">Разовое</span>
+                    </div>
+                    <p class="card-description">Оставьте осмысленный комментарий из 5+ слов под последним постом в инвесторском блоге.</p>
+                    <div class="card-footer">
+                        <span class="card-reward">+8.50 ₽</span>
+                        <button class="action-button">Выполнить</button>
+                    </div>
                 </div>
-            </div>
-            <div class="profile-stats">
-                <div class="item"><div class="num" id="tasksDone">2</div><div class="lbl">Задания</div></div>
-                <div class="item"><div class="num" id="earningsCount">5</div><div class="lbl">Заработки</div></div>
-                <div class="item"><div class="num" id="completedCount">19</div><div class="lbl">Выполнено</div></div>
-            </div>
-            <div class="profile-actions">
-                <button class="btn" onclick="openWithdraw()">💸 Вывод</button>
-                <button class="btn btn-outline" onclick="toggleLeaderboard()">🏆 Таблица лидеров</button>
-                <button class="btn btn-outline" style="background:#1c1c1e;color:#8e8e93;border:1px solid #2c2c2e;" onclick="alert('F.A.Q')">📖 F.A.Q / Правила сервиса</button>
-            </div>
-            <div class="leaderboard" id="leaderboard" style="display:none;">
-                <div class="top"><h3>🏆 Таблица Лидеров</h3><button class="close-btn" onclick="toggleLeaderboard()">✕</button></div>
-                <div id="lb-list"></div>
+
+                <!-- Карточка 3 -->
+                <div class="task-card">
+                    <div class="card-header">
+                        <span class="card-title">🔥 Активность в чате</span>
+                        <span class="badge">Ежедневное</span>
+                    </div>
+                    <p class="card-description">Отправьте 10 сообщений в главном чате криптосообщества. Спам строго запрещен.</p>
+                    <div class="card-footer">
+                        <span class="card-reward">+25.00 ₽</span>
+                        <button class="action-button">Выполнить</button>
+                    </div>
+                </div>
+
             </div>
         </div>
-    </div>
 
-    <!-- ВКЛАДКИ -->
-    <div class="tab-bar">
-        <button class="tab-item active" data-page="page-tasks"><span class="icon">📋</span><span>Задания</span></button>
-        <button class="tab-item" data-page="page-bonus"><span class="icon">🎁</span><span>Бонусы</span></button>
-        <button class="tab-item" data-page="page-profile"><span class="icon">👤</span><span>Профиль</span></button>
-    </div>
-
-    <!-- МОДАЛКА ВЫВОДА -->
-    <div class="modal-overlay" id="withdrawModal">
-        <div class="modal">
-            <h3>💸 Вывод средств</h3>
-            <p class="gray-text" style="font-size:14px;">Баланс: <strong style="color:#fff;" id="modalBalance">55₽</strong></p>
-            <input type="number" id="withdrawAmount" placeholder="Сумма" value="300" />
-            <p class="text-danger" style="font-size:12px;">Минимальная сумма: 300₽</p>
-            <div class="method">
-                <button class="active" onclick="selectMethod(this)">🏦 Банк</button>
-                <button onclick="selectMethod(this)">⚡ СБП</button>
-                <button onclick="selectMethod(this)">🪙 CryptoBot</button>
+        <!-- Нижняя панель (Tab Bar) -->
+        <div class="tab-bar">
+            <div class="tab-item active">
+                <span class="tab-icon">📋</span>
+                <span>Задания</span>
             </div>
-            <button class="btn" onclick="withdraw()">Вывести</button>
-            <button class="btn btn-outline" style="margin-top:8px;" onclick="closeWithdraw()">Отмена</button>
+            <div class="tab-item">
+                <span class="tab-icon">🎁</span>
+                <span>Бонусы</span>
+            </div>
+            <div class="tab-item">
+                <span class="tab-icon">👤</span>
+                <span>Профиль</span>
+            </div>
         </div>
+
+        <!-- Родная полоса Home Indicator -->
+        <div class="home-indicator"></div>
     </div>
-</div>
 
-<script>
-    const tg = window.Telegram.WebApp;
-    if (tg) tg.expand();
-
-    // ТВОИ КЛЮЧИ
-    const CLIENT_ID = '1045867140541-a10dl7iq5nhe8bslnoklvtj1qsmfgtbc.apps.googleusercontent.com';
-    const CLIENT_SECRET = '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';
-
-    // ID ТАБЛИЦЫ (ЗАМЕНИ НА СВОЙ!)
-    const SHEET_ID = '1ncNVBig-Qdn90I7oaTo6C9GtUu3BZLGm4gEbvsWqMrQ';
-
-    const user = tg.initDataUnsafe?.user || { id: 12345, username: 'test', first_name: 'Алексей' };
-    const userId = user.id;
-    const username = user.username || 'user_' + userId;
-    const firstName = user.first_name || 'Пользователь';
-
-    document.getElementById('profileName').textContent = firstName;
-    document.getElementById('avatar').textContent = firstName.charAt(0);
-
-    // ТАБЛИЦА ЛИДЕРОВ
-    const leaders = [
-        { name: 'Снежана', sum: '15,110₽' },
-        { name: 'Виктор', sum: '15,075₽' },
-        { name: '7 7', sum: '15,050₽' },
-        { name: '33216', sum: '15,047₽' },
-        { name: 'Region_05', sum: '15,047₽' },
-        { name: 'Vovkata 17й', sum: '15,038₽' },
-        { name: 'БЫ', sum: '228₽' },
-        { name: 'Ольга Жуворка', sum: '15,000₽' }
-    ];
-    document.getElementById('lb-list').innerHTML = leaders.map((l,i) =>
-        `<div class="lb-item"><span class="pos">#${i+1}</span><span class="name">${l.name}</span><span class="sum">${l.sum}</span></div>`
-    ).join('');
-
-    function toggleLeaderboard() {
-        const lb = document.getElementById('leaderboard');
-        lb.style.display = lb.style.display === 'none' ? 'block' : 'none';
-    }
-
-    function openWithdraw() { document.getElementById('withdrawModal').classList.add('open'); }
-    function closeWithdraw() { document.getElementById('withdrawModal').classList.remove('open'); }
-    function selectMethod(el) {
-        document.querySelectorAll('.method button').forEach(b => b.classList.remove('active'));
-        el.classList.add('active');
-    }
-    function withdraw() {
-        const amount = document.getElementById('withdrawAmount').value;
-        if (amount < 300) { alert('Минимум 300₽'); return; }
-        alert(`✅ Заявка на ${amount}₽ отправлена`);
-        closeWithdraw();
-    }
-    document.getElementById('withdrawModal').addEventListener('click', function(e) {
-        if (e.target === this) closeWithdraw();
-    });
-
-    // ВКЛАДКИ
-    document.querySelectorAll('.tab-item').forEach(tab => {
-        tab.addEventListener('click', function() {
-            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(this.dataset.page).classList.add('active');
-            document.getElementById('leaderboard').style.display = 'none';
-        });
-    });
-
-    // ФИЛЬТРЫ
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-        });
-    });
-
-    // РЕФЕРАЛЬНАЯ ССЫЛКА
-    function getRefLink() {
-        return `https://t.me/ВАШ_БОТ?start=ref_${userId}`;
-    }
-
-    function copyRefLink() {
-        const link = document.getElementById('refLink').textContent;
-        navigator.clipboard.writeText(link).then(() => {
-            alert('✅ Реферальная ссылка скопирована!');
-        }).catch(() => {
-            const input = document.createElement('input');
-            input.value = link;
-            document.body.appendChild(input);
-            input.select();
-            document.execCommand('copy');
-            document.body.removeChild(input);
-            alert('✅ Реферальная ссылка скопирована!');
-        });
-    }
-
-    function shareRefLink() {
-        const link = document.getElementById('refLink').textContent;
-        if (navigator.share) {
-            navigator.share({
-                title: 'Присоединяйся!',
-                text: `Зарабатывай со мной! Моя реферальная ссылка: ${link}`,
-            });
-        } else {
-            copyRefLink();
-        }
-    }
-
-    document.getElementById('refLink').textContent = getRefLink();
-</script>
 </body>
 </html>
