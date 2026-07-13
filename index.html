@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Telegram Mini App - Pro Interactive iOS 26</title>
+    <!-- Официальный скрипт Telegram WebApp для синхронизации -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         /* Базовые стили iOS 26 Ultra Glassmorphism */
         * {
@@ -186,7 +188,7 @@
         .widget-box span { display: block; color: #8e8e93; font-size: 11px; margin-bottom: 4px; text-transform: uppercase; }
         .widget-box p { font-size: 16pt; font-weight: 700; }
 
-        /* Безопасная Реферальная Секция */
+        /* Реферальная Секция */
         .ref-row {
             display: flex;
             gap: 10px;
@@ -228,7 +230,7 @@
         }
         .ref-copy-btn:active { transform: scale(0.95); opacity: 0.8; }
 
-        /* Профиль Хедер с Балансом */
+        /* Профиль Хедер Синхронизированный */
         .profile-header {
             display: flex;
             align-items: center;
@@ -239,26 +241,54 @@
             padding: 16px;
             border-radius: 22pt;
         }
-        .profile-avatar {
+        
+        /* Умный блок аватарки Telegram */
+        .profile-avatar-tg {
             width: 72px;
             height: 72px;
             border-radius: 50%;
-            object-fit: cover;
             border: 2px solid rgba(0, 122, 255, 0.4);
             box-shadow: 0 0 20px rgba(0, 122, 255, 0.25);
+            background: linear-gradient(135deg, #007aff, #00c6ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22pt;
+            font-weight: 700;
+            color: #ffffff;
+            overflow: hidden;
+            flex-shrink: 0;
         }
+        .profile-avatar-tg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
         .profile-info {
             flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
+            min-width: 0;
         }
-        .profile-info h2 { font-size: 18pt; font-weight: 800; letter-spacing: -0.5px; line-height: 1.2; }
-        .profile-info p { color: #8e8e93; font-size: 13px; margin-top: 1px; font-weight: 500; }
+        .profile-info h2 { font-size: 17pt; font-weight: 800; letter-spacing: -0.5px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .profile-info p { color: #8e8e93; font-size: 13px; margin-top: 1px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
+        .sync-status {
+            font-size: 10px;
+            color: #34c759;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
         .profile-balance-tag {
             align-self: flex-start;
-            margin-top: 6px;
+            margin-top: 8px;
             background: linear-gradient(135deg, rgba(52, 199, 89, 0.2) 0%, rgba(0, 205, 172, 0.2) 100%);
             border: 1px solid rgba(52, 199, 89, 0.4);
             padding: 4px 12px;
@@ -326,7 +356,7 @@
             border-color: rgba(0, 122, 255, 0.3);
         }
         .leader-rank { font-weight: 800; width: 35px; font-size: 14px;}
-        .leader-name { flex: 1; font-weight: 600; font-size: 14px; color: #e5e5ea;}
+        .leader-name { flex: 1; font-weight: 600; font-size: 14px; color: #e5e5ea; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;}
         .leader-score { font-weight: 700; font-size: 14px; color: #007aff;}
 
         /* Модалки Sheets */
@@ -408,18 +438,18 @@
             <div class="card-title" style="margin-bottom: 10px;">Реферальная программа</div>
             <p class="card-desc">Приглашайте партнеров и получайте <b>10%</b> от каждого их заработка в системе!</p>
             <div class="widget-grid" style="margin-bottom: 16px;">
-                <div class="widget-box"><span>Рефералы</span><p id="ref-count">24</p></div>
-                <div class="widget-box"><span>Доход (10%)</span><p id="ref-income" style="color: #34c759;">+930.00 ₽</p></div>
+                <div class="widget-box"><span>Рефералы</span><p id="ref-count">0</p></div>
+                <div class="widget-box"><span>Доход (10%)</span><p id="ref-income" style="color: #34c759;">+0.00 ₽</p></div>
             </div>
             
             <div class="ref-row" style="margin-bottom: 16px;">
                 <div class="input-group">
-                    <input type="text" value="" readonly id="refLink">
+                    <input type="text" value="Загрузка ссылки..." readonly id="refLink">
                 </div>
                 <button class="ref-copy-btn" onclick="copyLink()">Копировать</button>
             </div>
 
-            <!-- ИНТЕРАКТИВНЫЙ ТЕСТ РЕФЕРАЛКИ -->
+            <!-- Тест реферальной математики -->
             <button class="ios-btn" onclick="simulateReferralEarning()" style="font-size: 11pt; padding: 10px; background: rgba(255,255,255,0.04); color: #a1a1aa; border-color: rgba(255,255,255,0.08);">
                 🧪 Тест: Симулировать доход друга (500 ₽)
             </button>
@@ -429,24 +459,27 @@
     <!-- ЭКРАН 3: ПРОФИЛЬ -->
     <div id="screen-profile" class="screen-container">
         <div class="profile-header">
-            <img class="profile-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" alt="Avatar">
+            <!-- Умный контейнер аватарки -->
+            <div id="user-avatar-container" class="profile-avatar-tg">?</div>
+            
             <div class="profile-info">
-                <h2>Александр К.</h2>
-                <p>⚡ @alex_kirillov</p>
-                <div class="profile-balance-tag" id="user-balance">4850.00 ₽</div>
+                <h2 id="user-name">Загрузка...</h2>
+                <p id="user-username">@username</p>
+                <div class="sync-status">✓ Данные из Telegram</div>
+                <div class="profile-balance-tag" id="user-balance">0.00 ₽</div>
             </div>
         </div>
 
         <div class="ios-card clickable" onclick="openRatingModal()" style="background: rgba(255,215,0,0.04); border-color: rgba(255,215,0,0.25);">
             <div class="card-top">
                 <div class="card-title" style="display:flex; align-items:center; gap:6px;">🏆 Глобальный рейтинг</div>
-                <div class="card-reward" style="background:linear-gradient(135deg, #ffd700, #ffa500); -webkit-background-clip:text;">#408 место →</div>
+                <div class="card-reward" style="background:linear-gradient(135deg, #ffd700, #ffa500); -webkit-background-clip:text;">Посмотреть топ →</div>
             </div>
             <p class="card-desc" style="margin-bottom:0; font-size:11pt; color:#a1a1aa;">Нажмите, чтобы посмотреть таблицу лидеров системы.</p>
         </div>
 
         <div class="widget-grid" style="margin-bottom: 24px;">
-            <div class="widget-box"><span>Выполнено</span><p id="stats-done">142</p></div>
+            <div class="widget-box"><span>Выполнено</span><p id="stats-done">0</p></div>
             <div class="widget-box"><span>В обработке</span><p id="stats-review" style="color: #ff9500;">0</p></div>
         </div>
 
@@ -485,9 +518,9 @@
                     </div>
                     <div class="leader-item" style="justify-content: center; border: none; background: transparent; padding: 4px;">• • •</div>
                     <div class="leader-item me">
-                        <span class="leader-rank">#408</span>
-                        <span class="leader-name">@alex_kirillov (Вы)</span>
-                        <span class="leader-score" style="color:#34c759;">4,850 ₽</span>
+                        <span class="leader-rank">Вы</span>
+                        <span class="leader-name" id="leader-me-name">Пользователь</span>
+                        <span class="leader-score" id="leader-me-score" style="color:#34c759;">0.00 ₽</span>
                     </div>
                 </div>
             </div>
@@ -556,16 +589,17 @@
     </div>
 
     <script>
+        // Чистый стейт — у каждого пользователя все начинается с нуля
         let appState = {
-            tgId: 572940582, // Здесь будет динамический ID из Telegram WebApp
-            balance: 4850.00,
-            tasksDone: 142,
+            tgId: Math.floor(Math.random() * 100000000), // Временный ID на случай открытия в браузере
+            balance: 0.00,
+            tasksDone: 0,
             tasksReview: 0,
             currentTaskIndex: null,
             selectedPaymentMethod: 'xrocket',
             currentFilter: 'all',
-            refCount: 24,         // Храним количество рефералов в стейте
-            refIncome: 930.00,     // Храним реферальный доход в стейте цифрой
+            refCount: 0,
+            refIncome: 0.00,
             tasks: [
                 { id: 1, title: "Подписка на Telegram-канал", desc: "Перейдите в канал спонсора, подпишитесь и пришлите скриншот.", reward: 45, badge: "Новое", type: "blue", status: "ready" },
                 { id: 2, title: "Регистрация на платформе", desc: "Зарегистрируйте аккаунт по реф-ссылке и сделайте скриншот личного кабинета.", reward: 120, badge: "Высокая оплата", type: "gold", status: "ready" },
@@ -573,21 +607,78 @@
             ]
         };
 
-        // Генерация реф-ссылки под @Tasklau_bot
+        // ТГ-градиенты для юзеров без аватарок
+        const tgGradients = [
+            "linear-gradient(135deg, #ff453a, #ff9f0a)",
+            "linear-gradient(135deg, #32d74b, #63da38)",
+            "linear-gradient(135deg, #007aff, #0a84ff)",
+            "linear-gradient(135deg, #bf5af2, #da8fff)",
+            "linear-gradient(135deg, #ff375f, #ff6480)",
+            "linear-gradient(135deg, #5ac8fa, #66d3fa)"
+        ];
+
+        // Нативная синхронизация профиля с Telegram API
+        function initTelegramProfile() {
+            let name = "Анонимный Гость";
+            let username = "@username_unknown";
+            let firstLetter = "А";
+            
+            // Проверяем доступность Telegram WebApp SDK
+            if (window.Telegram && window.Telegram.WebApp) {
+                const tg = window.Telegram.WebApp;
+                tg.ready();
+                tg.expand();
+
+                const user = tg.initDataUnsafe?.user;
+                if (user) {
+                    appState.tgId = user.id;
+                    name = `${user.first_name || ''} ${user.last_name || ''}`.trim() || "Telegram User";
+                    username = user.username ? `@${user.username}` : `ID: ${user.id}`;
+                    firstLetter = name.charAt(0).toUpperCase();
+
+                    const avatarContainer = document.getElementById('user-avatar-container');
+                    
+                    if (user.photo_url) {
+                        // Если ТГ вернул прямую ссылку на аватарку
+                        avatarContainer.innerHTML = `<img src="${user.photo_url}" alt="Avatar">`;
+                    } else {
+                        // Генерация уникального градиента на основе telegram ID (как в самом ТГ)
+                        const gradientIndex = user.id % tgGradients.length;
+                        avatarContainer.style.background = tgGradients[gradientIndex];
+                        avatarContainer.innerText = firstLetter;
+                    }
+                }
+            } else {
+                // Браузерный режим (без ТГ) - ставим красивый случайный градиент
+                document.getElementById('user-avatar-container').style.background = tgGradients[3];
+                document.getElementById('user-avatar-container').innerText = "Б";
+                name = "Браузер Тест";
+                username = "@localhost_user";
+            }
+
+            // Выводим данные на экраны
+            document.getElementById('user-name').innerText = name;
+            document.getElementById('user-username').innerText = username;
+            document.getElementById('leader-me-name').innerText = `${name} (Вы)`;
+            
+            initRefLink();
+            updateProfileDOM();
+        }
+
         function initRefLink() {
             document.getElementById('refLink').value = `https://t.me/Tasklau_bot?start=ref_${appState.tgId}`;
         }
 
-        // Симуляция заработка реферала (начисление 10%)
         function simulateReferralEarning() {
-            let friendEarned = 500; // Допустим, приглашенный друг закрыл квест на 500 руб
-            let bonus = friendEarned * 0.10; // Вычисляем 10%
+            let friendEarned = 500;
+            let bonus = friendEarned * 0.10;
             
-            appState.refIncome += bonus; // Прибавляем к реф. доходу
-            appState.balance += bonus;   // Прибавляем к основному балансу пользователя
+            appState.refIncome += bonus;
+            appState.balance += bonus;
+            appState.refCount = Math.max(appState.refCount, 1); // Делаем минимум 1 рефа активным
             
-            updateProfileDOM(); // Обновляем данные на экране
-            alert(`🎉 Твой друг выполнил задание на ${friendEarned} ₽! Тебе начислено 10% бонуса: +${bonus.toFixed(2)} ₽`);
+            updateProfileDOM();
+            alert(`🎉 Твой реферал выполнил квест на ${friendEarned} ₽! Начислено 10% бонуса: +${bonus.toFixed(2)} ₽`);
         }
 
         function renderTasks() {
@@ -638,12 +729,14 @@
         }
 
         function updateProfileDOM() {
-            // Обновляем баланс и стату на экране профиля
-            document.getElementById('user-balance').innerText = `${appState.balance.toFixed(2)} ₽`;
+            const formattedBalance = `${appState.balance.toFixed(2)} ₽`;
+            
+            document.getElementById('user-balance').innerText = formattedBalance;
+            document.getElementById('leader-me-score').innerText = formattedBalance;
+            
             document.getElementById('stats-done').innerText = appState.tasksDone;
             document.getElementById('stats-review').innerText = appState.tasksReview;
             
-            // Динамически обновляем виджеты во вкладке бонусов
             document.getElementById('ref-count').innerText = appState.refCount;
             document.getElementById('ref-income').innerText = `+${appState.refIncome.toFixed(2)} ₽`;
         }
@@ -728,9 +821,9 @@
         }
 
         window.onload = function() {
-            initRefLink();
+            initTelegramProfile();
             renderTasks();
         };
     </script>
 </body>
-        </html>
+    </html>
