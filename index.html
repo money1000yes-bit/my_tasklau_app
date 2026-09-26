@@ -1,829 +1,1017 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Telegram Mini App - Pro Interactive iOS 26</title>
-    <!-- Официальный скрипт Telegram WebApp для синхронизации -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        /* Базовые стили iOS 26 Ultra Glassmorphism */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
-        }
-
-        body {
-            background: #000000;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(0, 122, 255, 0.18) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(52, 199, 89, 0.12) 0px, transparent 50%);
-            color: #ffffff;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .screen-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px 16px 120px 16px;
-            display: none;
-            opacity: 0;
-            transform: translateY(12px);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-
-        .screen-container.active {
-            display: block;
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-
-        .header h1 {
-            font-size: 24pt;
-            font-weight: 800;
-            letter-spacing: -0.7px;
-            background: linear-gradient(180deg, #ffffff 0%, #a1a1aa 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* Карточки */
-        .ios-card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border-radius: 20pt;
-            padding: 20px;
-            margin-bottom: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
-            transition: all 0.2s ease;
-        }
-
-        .ios-card.clickable:active {
-            transform: scale(0.98);
-            background: rgba(255, 255, 255, 0.06);
-        }
-
-        .card-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .card-title { font-size: 16pt; font-weight: 700; }
-        .card-reward {
-            background: linear-gradient(135deg, #007aff, #00c6ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-size: 16pt;
-            font-weight: 700;
-        }
-
-        .card-desc {
-            color: #d1d1d6;
-            font-size: 12pt;
-            line-height: 1.4;
-            margin-bottom: 16px;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 8px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            margin-bottom: 14px;
-        }
-        .badge.red { background: rgba(255, 59, 48, 0.15); color: #ff453a; border: 1px solid rgba(255, 59, 48, 0.2); }
-        .badge.blue { background: rgba(0, 122, 255, 0.15); color: #007aff; border: 1px solid rgba(0, 122, 255, 0.2); }
-        .badge.gold { background: rgba(255, 215, 0, 0.15); color: #ffd700; border: 1px solid rgba(255, 215, 0, 0.3); }
-
-        /* Кнопки */
-        .ios-btn {
-            background: rgba(0, 122, 255, 0.15);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            color: #007aff;
-            border: 1px solid rgba(0, 122, 255, 0.35);
-            padding: 14px;
-            border-radius: 14pt;
-            font-size: 14pt;
-            font-weight: 600;
-            width: 100%;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-        }
-        .ios-btn:active { transform: scale(0.98); opacity: 0.8; }
-        .ios-btn.green {
-            background: rgba(52, 199, 89, 0.12);
-            color: #34c759;
-            border: 1px solid rgba(52, 199, 89, 0.35);
-        }
-        .ios-btn.disabled {
-            background: rgba(255, 255, 255, 0.04);
-            color: #8e8e93;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            pointer-events: none;
-        }
-
-        /* Горизонтальный скролл фильтров */
-        .filters-container {
-            overflow-x: auto;
-            white-space: nowrap;
-            margin-bottom: 24px;
-            padding-bottom: 4px;
-            scrollbar-width: none;
-        }
-        .filters-container::-webkit-scrollbar { display: none; }
-
-        .filters-chips { display: inline-flex; gap: 8px; }
-        .chip {
-            background: rgba(28, 28, 30, 0.5);
-            color: #a1a1aa;
-            padding: 10px 18px;
-            border-radius: 12pt;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            transition: all 0.2s;
-        }
-        .chip.active {
-            background: rgba(0, 122, 255, 0.8);
-            color: #ffffff;
-            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
-        }
-
-        /* Виджеты статистики */
-        .widget-grid { display: flex; gap: 10px; margin-bottom: 16px; }
-        .widget-box {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 12px;
-            border-radius: 14pt;
-            text-align: center;
-        }
-        .widget-box span { display: block; color: #8e8e93; font-size: 11px; margin-bottom: 4px; text-transform: uppercase; }
-        .widget-box p { font-size: 16pt; font-weight: 700; }
-
-        /* Реферальная Секция */
-        .ref-row {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            width: 100%;
-        }
-        .input-group {
-            flex: 1;
-            min-width: 0;
-            display: flex;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 14pt;
-            padding: 4px;
-            align-items: center;
-        }
-        .input-group input {
-            width: 100%;
-            min-width: 0;
-            background: transparent;
-            border: none;
-            color: white;
-            padding: 12px;
-            font-size: 14px;
-            outline: none;
-            text-overflow: ellipsis;
-        }
-        .ref-copy-btn {
-            flex-shrink: 0;
-            background: rgba(0, 122, 255, 0.15);
-            color: #007aff;
-            border: 1px solid rgba(0, 122, 255, 0.35);
-            padding: 12px 18px;
-            border-radius: 12pt;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .ref-copy-btn:active { transform: scale(0.95); opacity: 0.8; }
-
-        /* Профиль Хедер Синхронизированный */
-        .profile-header {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 24px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 16px;
-            border-radius: 22pt;
-        }
-        
-        /* Умный блок аватарки Telegram */
-        .profile-avatar-tg {
-            width: 72px;
-            height: 72px;
-            border-radius: 50%;
-            border: 2px solid rgba(0, 122, 255, 0.4);
-            box-shadow: 0 0 20px rgba(0, 122, 255, 0.25);
-            background: linear-gradient(135deg, #007aff, #00c6ff);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22pt;
-            font-weight: 700;
-            color: #ffffff;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-        .profile-avatar-tg img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .profile-info {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            min-width: 0;
-        }
-        .profile-info h2 { font-size: 17pt; font-weight: 800; letter-spacing: -0.5px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .profile-info p { color: #8e8e93; font-size: 13px; margin-top: 1px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        
-        .sync-status {
-            font-size: 10px;
-            color: #34c759;
-            font-weight: 700;
-            text-transform: uppercase;
-            margin-top: 2px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .profile-balance-tag {
-            align-self: flex-start;
-            margin-top: 8px;
-            background: linear-gradient(135deg, rgba(52, 199, 89, 0.2) 0%, rgba(0, 205, 172, 0.2) 100%);
-            border: 1px solid rgba(52, 199, 89, 0.4);
-            padding: 4px 12px;
-            border-radius: 10pt;
-            font-size: 13pt;
-            font-weight: 800;
-            color: #34c759;
-            text-shadow: 0 0 10px rgba(52, 199, 89, 0.2);
-        }
-
-        /* Выбор платежки */
-        .payment-methods {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 16px;
-        }
-        .payment-type {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 12px;
-            border-radius: 12pt;
-            text-align: center;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            color: #a1a1aa;
-            transition: all 0.2s ease;
-        }
-        .payment-type.active {
-            background: rgba(0, 122, 255, 0.15);
-            border-color: #007aff;
-            color: #ffffff;
-            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
-        }
-
-        .screenshot-preview {
-            width: 100%;
-            max-height: 150px;
-            object-fit: contain;
-            border-radius: 10pt;
-            margin-top: 10px;
-            display: none;
-            border: 1px dashed rgba(255,255,255,0.2);
-        }
-
-        /* Рейтинг Лидерборд */
-        .leaderboard-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-top: 12px;
-        }
-        .leader-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 16px;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 12pt;
-        }
-        .leader-item.me {
-            background: rgba(0, 122, 255, 0.1);
-            border-color: rgba(0, 122, 255, 0.3);
-        }
-        .leader-rank { font-weight: 800; width: 35px; font-size: 14px;}
-        .leader-name { flex: 1; font-weight: 600; font-size: 14px; color: #e5e5ea; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px;}
-        .leader-score { font-weight: 700; font-size: 14px; color: #007aff;}
-
-        /* Модалки Sheets */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            display: flex;
-            align-items: flex-end;
-            z-index: 1000;
-            opacity: 0; pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-        .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        
-        .modal-sheet {
-            width: 100%;
-            background: rgba(20, 20, 25, 0.95);
-            border-top: 1px solid rgba(255,255,255,0.1);
-            border-radius: 24pt 24pt 0 0;
-            padding: 24px 20px 40px 20px;
-            transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        .modal-overlay.active .modal-sheet { transform: translateY(0); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-header h3 { font-size: 18pt; font-weight: 700; }
-        .close-btn { color: #007aff; font-size: 16px; font-weight: 600; cursor: pointer; }
-
-        .modal-body textarea {
-            width: 100%; height: 80px; background: rgba(255,255,255,0.05); 
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 12pt; resize: none; margin-bottom: 16px;
-            color: white; padding: 12px; outline: none;
-        }
-
-        /* Floating Tab Bar */
-        .tab-bar {
-            position: fixed; bottom: 20px; left: 16px; right: 16px; height: 72px;
-            background: rgba(20, 20, 25, 0.6); backdrop-filter: blur(40px) saturate(200%);
-            -webkit-backdrop-filter: blur(40px) saturate(200%); border-radius: 24pt;
-            border: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-around; align-items: center;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); z-index: 999;
-        }
-        .tab-item { display: flex; flex-direction: column; align-items: center; color: #72727a; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.25s; }
-        .tab-item svg { width: 24px; height: 24px; margin-bottom: 4px; fill: none; stroke: currentColor; stroke-width: 2; }
-        .tab-item.active { color: #007aff; text-shadow: 0 0 10px rgba(0, 122, 255, 0.4); }
-        .tab-item.active svg { fill: rgba(0, 122, 255, 0.1); }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>EarnHub</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+:root {
+  --bg: #08080f;
+  --card: rgba(255,255,255,0.05);
+  --card-hover: rgba(255,255,255,0.08);
+  --border: rgba(255,255,255,0.08);
+  --text: #ffffff;
+  --text-2: #8b8ba0;
+  --accent: #7c5cff;
+  --accent-2: #00d4ff;
+  --gold: #ffc93c;
+  --success: #29d67b;
+  --danger: #ff5470;
+  --warn: #ffab3c;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden;
+  background-image:
+    radial-gradient(circle at 20% 0%, rgba(124,92,255,0.15), transparent 40%),
+    radial-gradient(circle at 80% 100%, rgba(0,212,255,0.12), transparent 40%);
+  background-attachment: fixed;
+}
+.app { max-width: 480px; margin: 0 auto; padding: 16px 16px 110px; }
+.header { display: flex; justify-content: space-between; align-items: center; padding: 8px 0 16px; animation: fadeDown 0.5s ease both; }
+.user { display: flex; align-items: center; gap: 12px; }
+.avatar {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  display: grid; place-items: center; font-weight: 700; font-size: 18px; color: white;
+  box-shadow: 0 6px 20px rgba(124,92,255,0.5);
+}
+.greeting { font-size: 12px; color: var(--text-2); }
+.username { font-size: 16px; font-weight: 700; }
+.icon-btn {
+  width: 44px; height: 44px; border-radius: 14px;
+  background: var(--card); border: 1px solid var(--border);
+  color: var(--text); font-size: 18px; cursor: pointer;
+  transition: transform 0.2s, background 0.2s; backdrop-filter: blur(10px);
+}
+.icon-btn:active { transform: scale(0.9); background: var(--card-hover); }
+.screen { display: none; animation: fadeUp 0.4s ease both; }
+.screen.active { display: block; }
+.screen-title { font-size: 24px; font-weight: 800; margin-bottom: 16px; letter-spacing: -0.5px; }
+.balance-card {
+  position: relative; margin-top: 4px; padding: 24px; border-radius: 28px;
+  background: linear-gradient(135deg, #1e1b3a 0%, #2a1e5c 50%, #1a2540 100%);
+  overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+.balance-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+.balance-label { font-size: 13px; color: rgba(255,255,255,0.6); }
+.balance-value {
+  font-size: 38px; font-weight: 800; margin-top: 4px; letter-spacing: -1.5px;
+  background: linear-gradient(90deg, #fff, #b3a5ff);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.level-badge {
+  padding: 6px 12px; background: rgba(255,201,60,0.15);
+  border: 1px solid rgba(255,201,60,0.4); border-radius: 12px;
+  font-size: 12px; font-weight: 700; color: var(--gold);
+}
+.level-badge span { font-size: 15px; }
+.balance-actions { display: flex; gap: 10px; position: relative; z-index: 2; }
+.btn {
+  padding: 12px 16px; border-radius: 14px; border: none;
+  font-size: 14px; font-weight: 700; cursor: pointer;
+  transition: transform 0.15s, opacity 0.2s; font-family: inherit;
+}
+.btn:active { transform: scale(0.95); }
+.btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: white; box-shadow: 0 8px 20px rgba(124,92,255,0.5); flex: 1; }
+.btn-ghost { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.15); flex: 1; }
+.btn.big { width: 100%; padding: 14px; margin-top: 16px; font-size: 15px; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.glow { position: absolute; top: -80px; right: -80px; width: 220px; height: 220px; background: radial-gradient(circle, rgba(124,92,255,0.7), transparent 70%); filter: blur(50px); animation: pulse 4s infinite ease-in-out; }
+.glow-2 { top: auto; right: auto; bottom: -80px; left: -80px; background: radial-gradient(circle, rgba(0,212,255,0.5), transparent 70%); animation-delay: 2s; }
+.quick-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 16px; }
+.quick-card {
+  padding: 16px; background: var(--card); border: 1px solid var(--border);
+  border-radius: 20px; cursor: pointer;
+  transition: transform 0.2s, background 0.2s, border-color 0.2s;
+  backdrop-filter: blur(10px); position: relative; overflow: hidden;
+}
+.quick-card:active { transform: scale(0.97); background: var(--card-hover); border-color: rgba(124,92,255,0.4); }
+.quick-icon { font-size: 28px; margin-bottom: 8px; }
+.quick-title { font-size: 15px; font-weight: 700; }
+.quick-sub { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+.section { margin-top: 26px; }
+.section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.section-head h3 { font-size: 17px; font-weight: 700; }
+.link { background: none; border: none; color: var(--accent-2); font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
+.task {
+  display: flex; align-items: center; gap: 14px; padding: 14px;
+  background: var(--card); border: 1px solid var(--border); border-radius: 18px;
+  margin-bottom: 10px; cursor: pointer;
+  transition: transform 0.2s, background 0.2s, border-color 0.2s;
+  backdrop-filter: blur(10px); animation: fadeUp 0.4s ease both;
+}
+.task:active { transform: scale(0.98); background: var(--card-hover); border-color: rgba(124,92,255,0.3); }
+.task.done { opacity: 0.6; pointer-events: none; }
+.task.done .task-reward { color: var(--success); background: rgba(41,214,123,0.12); border-color: rgba(41,214,123,0.25); }
+.task.pending { opacity: 0.85; pointer-events: none; }
+.task.pending .task-reward { color: var(--warn); background: rgba(255,171,60,0.12); border-color: rgba(255,171,60,0.3); }
+.task-icon {
+  width: 48px; height: 48px; border-radius: 14px;
+  background: linear-gradient(135deg, rgba(124,92,255,0.25), rgba(0,212,255,0.25));
+  display: grid; place-items: center; font-size: 22px; flex-shrink: 0;
+}
+.task-info { flex: 1; min-width: 0; }
+.task-title { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.task-sub { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+.task-reward {
+  font-size: 13px; font-weight: 700; color: var(--gold);
+  padding: 6px 10px; background: rgba(255,201,60,0.12);
+  border: 1px solid rgba(255,201,60,0.25); border-radius: 10px; white-space: nowrap;
+}
+.task-badge {
+  font-size: 10px; padding: 4px 8px; border-radius: 8px;
+  background: rgba(255,255,255,0.08); color: var(--text-2); font-weight: 700;
+  text-transform: uppercase;
+}
+.task-badge.manual { background: rgba(255,171,60,0.15); color: var(--warn); }
+.premium-banner {
+  position: relative; display: flex; align-items: center; gap: 14px;
+  padding: 18px; border-radius: 22px;
+  background: linear-gradient(135deg, #2a1e00 0%, #4a2f00 50%, #1a1e2e 100%);
+  border: 1px solid rgba(255,201,60,0.3); overflow: hidden;
+}
+.premium-glow { position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(255,201,60,0.5), transparent 70%); filter: blur(30px); }
+.premium-crown { font-size: 38px; position: relative; z-index: 1; }
+.premium-info { flex: 1; position: relative; z-index: 1; }
+.premium-title { font-size: 15px; font-weight: 700; color: var(--gold); }
+.premium-sub { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+.btn-buy {
+  position: relative; z-index: 1; padding: 10px 16px;
+  background: linear-gradient(135deg, var(--gold), #ff9f1c);
+  border: none; border-radius: 12px; font-weight: 700; font-size: 13px; color: #1a1000;
+  cursor: pointer; font-family: inherit; transition: transform 0.15s;
+}
+.btn-buy:active { transform: scale(0.94); }
+.tabs { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  padding: 9px 16px; background: var(--card); border: 1px solid var(--border);
+  color: var(--text-2); border-radius: 12px; font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: inherit; white-space: nowrap; transition: all 0.2s;
+}
+.tab.active { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: white; border-color: transparent; box-shadow: 0 6px 16px rgba(124,92,255,0.4); }
+.shop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.shop-item {
+  padding: 16px; background: var(--card); border: 1px solid var(--border);
+  border-radius: 20px; cursor: pointer;
+  transition: transform 0.2s, background 0.2s, border-color 0.2s;
+  backdrop-filter: blur(10px); animation: fadeUp 0.4s ease both;
+  position: relative; overflow: hidden;
+}
+.shop-item:active { transform: scale(0.97); border-color: rgba(124,92,255,0.4); }
+.shop-item.hit { border-color: rgba(255,201,60,0.4); background: linear-gradient(135deg, rgba(255,201,60,0.1), rgba(124,92,255,0.08)); }
+.shop-item.hit::after {
+  content: 'ХИТ'; position: absolute; top: 10px; right: -22px;
+  background: var(--gold); color: #1a1000; font-size: 9px; font-weight: 800;
+  padding: 3px 24px; transform: rotate(45deg);
+}
+.shop-icon { font-size: 32px; margin-bottom: 8px; }
+.shop-title { font-size: 14px; font-weight: 700; }
+.shop-sub { font-size: 11px; color: var(--text-2); margin: 2px 0 10px; }
+.shop-price { display: inline-block; font-size: 13px; font-weight: 700; color: var(--accent-2); padding: 5px 10px; background: rgba(0,212,255,0.1); border-radius: 8px; }
+.game-card {
+  padding: 22px; background: var(--card); border: 1px solid var(--border);
+  border-radius: 24px; margin-bottom: 14px; text-align: center;
+  backdrop-filter: blur(10px); animation: fadeUp 0.4s ease both;
+}
+.game-title { font-size: 18px; font-weight: 800; }
+.game-sub { font-size: 12px; color: var(--text-2); margin-top: 4px; }
+.wheel-wrap { position: relative; display: inline-block; margin: 20px 0; }
+.wheel {
+  width: 180px; height: 180px; border-radius: 50%;
+  background: conic-gradient(
+    #7c5cff 0deg 45deg, #00d4ff 45deg 90deg, #ffc93c 90deg 135deg,
+    #ff5470 135deg 180deg, #29d67b 180deg 225deg, #7c5cff 225deg 270deg,
+    #00d4ff 270deg 315deg, #ffc93c 315deg 360deg
+  );
+  display: grid; place-items: center;
+  box-shadow: 0 10px 40px rgba(124,92,255,0.5), inset 0 0 20px rgba(0,0,0,0.3);
+  transition: transform 3s cubic-bezier(0.2, 0.8, 0.3, 1);
+  border: 6px solid rgba(255,255,255,0.1);
+}
+.wheel-center {
+  width: 60px; height: 60px; background: #08080f; border-radius: 50%;
+  display: grid; place-items: center; font-size: 24px;
+  border: 3px solid rgba(255,255,255,0.15);
+}
+.wheel-pointer { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); font-size: 24px; color: var(--gold); filter: drop-shadow(0 0 8px var(--gold)); }
+.dice { font-size: 70px; margin: 20px 0; transition: transform 0.5s; display: inline-block; }
+.profile-card {
+  padding: 26px 20px; background: linear-gradient(135deg, #1e1b3a 0%, #2a1e5c 100%);
+  border-radius: 24px; text-align: center; position: relative; overflow: hidden;
+}
+.profile-card::before {
+  content: ''; position: absolute; top: -60px; left: -60px;
+  width: 180px; height: 180px;
+  background: radial-gradient(circle, rgba(0,212,255,0.4), transparent 70%);
+  filter: blur(40px);
+}
+.profile-avatar {
+  width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 12px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  display: grid; place-items: center; font-size: 32px; font-weight: 800; color: white;
+  box-shadow: 0 10px 30px rgba(124,92,255,0.5); position: relative; z-index: 1;
+}
+.profile-name { font-size: 20px; font-weight: 800; position: relative; z-index: 1; }
+.profile-id { font-size: 12px; color: var(--text-2); margin-top: 2px; position: relative; z-index: 1; }
+.profile-stats {
+  display: flex; justify-content: space-around; margin-top: 20px;
+  padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);
+  position: relative; z-index: 1;
+}
+.profile-stats > div { display: flex; flex-direction: column; gap: 4px; }
+.profile-stats b { font-size: 18px; font-weight: 800; }
+.profile-stats span { font-size: 11px; color: var(--text-2); }
+.menu-item {
+  display: flex; align-items: center; gap: 12px; padding: 16px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; margin-bottom: 8px; font-size: 14px;
+  cursor: pointer; transition: background 0.2s, transform 0.15s;
+}
+.menu-item:active { background: var(--card-hover); transform: scale(0.99); }
+.menu-item span { flex: 1; font-weight: 500; }
+.menu-item b { color: var(--gold); font-size: 13px; }
+.bottom-nav {
+  position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%);
+  width: calc(100% - 24px); max-width: 456px;
+  display: flex; justify-content: space-around; padding: 8px;
+  background: rgba(15,15,25,0.85); border: 1px solid var(--border);
+  border-radius: 24px; backdrop-filter: blur(20px);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6); z-index: 100;
+}
+.nav-item {
+  flex: 1; background: none; border: none; color: var(--text-2);
+  font-size: 20px; padding: 8px 0; border-radius: 16px;
+  cursor: pointer; transition: all 0.25s; position: relative; font-family: inherit;
+}
+.nav-item span { display: block; font-size: 10px; margin-top: 2px; font-weight: 600; }
+.nav-item.active {
+  color: white;
+  background: linear-gradient(135deg, rgba(124,92,255,0.8), rgba(0,212,255,0.6));
+  box-shadow: 0 6px 16px rgba(124,92,255,0.4); transform: translateY(-2px);
+}
+.toast {
+  position: fixed; top: 20px; left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  padding: 14px 22px; background: rgba(20,20,30,0.95);
+  border: 1px solid var(--border); border-radius: 16px;
+  font-size: 14px; font-weight: 600; backdrop-filter: blur(20px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 999;
+  transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  pointer-events: none; white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: rgba(41,214,123,0.5); color: var(--success); }
+.toast.error { border-color: rgba(255,84,112,0.5); color: var(--danger); }
+.toast.warn { border-color: rgba(255,171,60,0.5); color: var(--warn); }
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(8px); z-index: 1000;
+  display: none; align-items: center; justify-content: center;
+  padding: 20px; animation: fadeIn 0.25s ease;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  width: 100%; max-width: 400px;
+  background: linear-gradient(135deg, #1a1a28, #14141f);
+  border: 1px solid var(--border); border-radius: 24px;
+  padding: 24px; animation: modalIn 0.35s cubic-bezier(0.2,0.9,0.3,1.2);
+  max-height: 85vh; overflow-y: auto;
+}
+.modal-title { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+.modal-sub { font-size: 13px; color: var(--text-2); margin-bottom: 18px; }
+.modal-input {
+  width: 100%; padding: 14px 16px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; color: var(--text); font-size: 15px;
+  font-family: inherit; margin-bottom: 12px; outline: none;
+  transition: border-color 0.2s;
+}
+.modal-input:focus { border-color: var(--accent); }
+.modal-input::placeholder { color: var(--text-2); }
+.modal-actions { display: flex; gap: 10px; margin-top: 8px; }
+.modal-actions .btn { flex: 1; }
+.method-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.method {
+  display: flex; align-items: center; gap: 12px; padding: 14px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; cursor: pointer; transition: all 0.2s;
+  font-size: 14px; font-weight: 600;
+}
+.method:hover { border-color: var(--accent); }
+.method.selected { border-color: var(--accent); background: rgba(124,92,255,0.15); }
+.method-icon { font-size: 22px; }
+.modal-note {
+  font-size: 12px; color: var(--text-2);
+  padding: 12px; background: rgba(255,171,60,0.08);
+  border: 1px solid rgba(255,171,60,0.2); border-radius: 12px;
+  margin-bottom: 12px; line-height: 1.5;
+}
+@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeDown { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulse { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes modalIn { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+</style>
 </head>
 <body>
+<div class="app">
+  <header class="header">
+    <div class="user">
+      <div class="avatar" id="avatar">?</div>
+      <div>
+        <div class="greeting">Добро пожаловать 👋</div>
+        <div class="username" id="username">Гость</div>
+      </div>
+    </div>
+    <button class="icon-btn" id="notifBtn">🔔</button>
+  </header>
 
-    <!-- ЭКРАН 1: ЗАДАНИЯ -->
-    <div id="screen-tasks" class="screen-container active">
-        <div class="header">
-            <h1>Задания</h1>
+  <!-- ГЛАВНАЯ -->
+  <main class="screen active" id="screen-home">
+    <section class="balance-card">
+      <div class="balance-top">
+        <div>
+          <div class="balance-label">Ваш баланс</div>
+          <div class="balance-value">⭐ <span id="balance">0</span></div>
         </div>
-        <div class="filters-container">
-            <div class="filters-chips">
-                <div class="chip active" onclick="filterTasks('all', this)">Все</div>
-                <div class="chip" onclick="filterTasks('new', this)">Новые</div>
-                <div class="chip" onclick="filterTasks('review', this)">На проверке</div>
-                <div class="chip" onclick="filterTasks('expensive', this)">Дороже</div>
-                <div class="chip" onclick="filterTasks('cheap', this)">Дешевле</div>
-            </div>
+        <div class="level-badge">LVL <span id="level">1</span></div>
+      </div>
+      <div class="balance-actions">
+        <button class="btn btn-primary" id="withdrawBtn">💸 Вывести</button>
+        <button class="btn btn-ghost" data-goto="tasks">🎯 Задания</button>
+      </div>
+      <div class="glow"></div>
+      <div class="glow glow-2"></div>
+    </section>
+
+    <section class="quick-grid">
+      <div class="quick-card" data-goto="tasks">
+        <div class="quick-icon">🎯</div>
+        <div class="quick-title">Задания</div>
+        <div class="quick-sub">+500 ⭐/день</div>
+      </div>
+      <div class="quick-card" data-goto="games">
+        <div class="quick-icon">🎰</div>
+        <div class="quick-title">Игры</div>
+        <div class="quick-sub">x2 за победу</div>
+      </div>
+      <div class="quick-card" data-goto="shop">
+        <div class="quick-icon">⭐</div>
+        <div class="quick-title">Звёзды</div>
+        <div class="quick-sub">от 1 ₽</div>
+      </div>
+      <div class="quick-card" data-goto="shop">
+        <div class="quick-icon">👑</div>
+        <div class="quick-title">Premium</div>
+        <div class="quick-sub">выгодно</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h3>🔥 Топ задания</h3>
+        <button class="link" data-goto="tasks">Все →</button>
+      </div>
+      <div id="homeTasks"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><h3>👑 Premium TG</h3></div>
+      <div class="premium-banner">
+        <div class="premium-glow"></div>
+        <div class="premium-crown">👑</div>
+        <div class="premium-info">
+          <div class="premium-title">Telegram Premium</div>
+          <div class="premium-sub">От 199 ⭐ / месяц</div>
         </div>
-        <div id="tasks-list"></div>
+        <button class="btn-buy" data-goto="shop">Купить</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ЗАДАНИЯ -->
+  <main class="screen" id="screen-tasks">
+    <h2 class="screen-title">🎯 Задания</h2>
+    <div class="tabs">
+      <button class="tab active" data-filter="all">Все</button>
+      <button class="tab" data-filter="auto">🤖 Авто</button>
+      <button class="tab" data-filter="manual">👤 Ручные</button>
+    </div>
+    <div id="tasksList"></div>
+  </main>
+
+  <!-- МАГАЗИН -->
+  <main class="screen" id="screen-shop">
+    <h2 class="screen-title">💎 Магазин</h2>
+    <div class="tabs">
+      <button class="tab active" data-shop="stars">⭐ Звёзды</button>
+      <button class="tab" data-shop="premium">👑 Premium</button>
+      <button class="tab" data-shop="donate">🎁 Донаты</button>
+      <button class="tab" data-shop="games">🎮 Игры</button>
+    </div>
+    <div class="shop-grid" id="shopGrid"></div>
+  </main>
+
+  <!-- ИГРЫ -->
+  <main class="screen" id="screen-games">
+    <h2 class="screen-title">🎰 Игры</h2>
+    <div class="game-card">
+      <div class="game-title">🎡 Колесо Фортуны</div>
+      <div class="game-sub">Крути и выигрывай до x10</div>
+      <div class="wheel-wrap">
+        <div class="wheel" id="wheel"><div class="wheel-center">🎯</div></div>
+        <div class="wheel-pointer">▼</div>
+      </div>
+      <button class="btn btn-primary big" id="spinBtn">Крутить за 50 ⭐</button>
+    </div>
+    <div class="game-card">
+      <div class="game-title">🎲 Кубик удачи</div>
+      <div class="game-sub">Ставь и удваивай</div>
+      <div class="dice" id="dice">🎲</div>
+      <button class="btn btn-primary big" id="diceBtn">Бросить за 100 ⭐</button>
+    </div>
+  </main>
+
+  <!-- ПРОФИЛЬ -->
+  <main class="screen" id="screen-profile">
+    <h2 class="screen-title">👤 Профиль</h2>
+    <div class="profile-card">
+      <div class="profile-avatar" id="profileAvatar">?</div>
+      <div class="profile-name" id="profileName">Гость</div>
+      <div class="profile-id" id="profileId">ID: —</div>
+      <div class="profile-stats">
+        <div><b id="statBalance">0</b><span>Баланс</span></div>
+        <div><b id="statLevel">1</b><span>Уровень</span></div>
+        <div><b id="statRefs">0</b><span>Рефералы</span></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="menu-item" id="dailyBonus">🎁 <span>Ежедневный бонус</span><b>+100 ⭐</b></div>
+      <div class="menu-item" id="inviteBtn">🤝 <span>Пригласить друга</span><b>+300 ⭐</b></div>
+      <div class="menu-item" id="withdrawMenu">💸 <span>Вывести средства</span><b>от 1000 ⭐</b></div>
+      <div class="menu-item" id="historyBtn">📜 <span>История операций</span></div>
+      <div class="menu-item">💬 <span>Поддержка</span></div>
+    </div>
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-screen="home">🏠<span>Главная</span></button>
+    <button class="nav-item" data-screen="tasks">🎯<span>Задания</span></button>
+    <button class="nav-item" data-screen="shop">💎<span>Магазин</span></button>
+    <button class="nav-item" data-screen="games">🎮<span>Игры</span></button>
+    <button class="nav-item" data-screen="profile">👤<span>Профиль</span></button>
+  </nav>
+</div>
+
+<!-- МОДАЛКА ВЫВОДА -->
+<div class="modal-overlay" id="withdrawModal">
+  <div class="modal">
+    <div class="modal-title">💸 Вывод средств</div>
+    <div class="modal-sub">Минимальная сумма: 1000 ⭐</div>
+    <div class="modal-note">
+      Заявка уйдёт администратору в бот. Проверка занимает до 24 часов. Убедитесь, что данные верные.
     </div>
 
-    <!-- ЭКРАН 2: БОНУСЫ -->
-    <div id="screen-bonuses" class="screen-container">
-        <div class="header">
-            <h1>Бонусы</h1>
-        </div>
-        <div class="ios-card">
-            <div class="card-title" style="margin-bottom: 10px;">Реферальная программа</div>
-            <p class="card-desc">Приглашайте партнеров и получайте <b>10%</b> от каждого их заработка в системе!</p>
-            <div class="widget-grid" style="margin-bottom: 16px;">
-                <div class="widget-box"><span>Рефералы</span><p id="ref-count">0</p></div>
-                <div class="widget-box"><span>Доход (10%)</span><p id="ref-income" style="color: #34c759;">+0.00 ₽</p></div>
-            </div>
-            
-            <div class="ref-row" style="margin-bottom: 16px;">
-                <div class="input-group">
-                    <input type="text" value="Загрузка ссылки..." readonly id="refLink">
-                </div>
-                <button class="ref-copy-btn" onclick="copyLink()">Копировать</button>
-            </div>
-
-            <!-- Тест реферальной математики -->
-            <button class="ios-btn" onclick="simulateReferralEarning()" style="font-size: 11pt; padding: 10px; background: rgba(255,255,255,0.04); color: #a1a1aa; border-color: rgba(255,255,255,0.08);">
-                🧪 Тест: Симулировать доход друга (500 ₽)
-            </button>
-        </div>
+    <div class="method-list" id="methodList">
+      <div class="method selected" data-method="card">
+        <div class="method-icon">💳</div>
+        <div>Банковская карта</div>
+      </div>
+      <div class="method" data-method="crypto">
+        <div class="method-icon">₿</div>
+        <div>Криптовалюта (USDT)</div>
+      </div>
+      <div class="method" data-method="stars">
+        <div class="method-icon">⭐</div>
+        <div>Telegram Stars</div>
+      </div>
     </div>
 
-    <!-- ЭКРАН 3: ПРОФИЛЬ -->
-    <div id="screen-profile" class="screen-container">
-        <div class="profile-header">
-            <!-- Умный контейнер аватарки -->
-            <div id="user-avatar-container" class="profile-avatar-tg">?</div>
-            
-            <div class="profile-info">
-                <h2 id="user-name">Загрузка...</h2>
-                <p id="user-username">@username</p>
-                <div class="sync-status">✓ Данные из Telegram</div>
-                <div class="profile-balance-tag" id="user-balance">0.00 ₽</div>
-            </div>
-        </div>
+    <input type="number" class="modal-input" id="wdAmount" placeholder="Сумма (от 1000 ⭐)" min="1000" />
+    <input type="text" class="modal-input" id="wdDetails" placeholder="Реквизиты (номер карты / кошелёк)" />
 
-        <div class="ios-card clickable" onclick="openRatingModal()" style="background: rgba(255,215,0,0.04); border-color: rgba(255,215,0,0.25);">
-            <div class="card-top">
-                <div class="card-title" style="display:flex; align-items:center; gap:6px;">🏆 Глобальный рейтинг</div>
-                <div class="card-reward" style="background:linear-gradient(135deg, #ffd700, #ffa500); -webkit-background-clip:text;">Посмотреть топ →</div>
-            </div>
-            <p class="card-desc" style="margin-bottom:0; font-size:11pt; color:#a1a1aa;">Нажмите, чтобы посмотреть таблицу лидеров системы.</p>
-        </div>
-
-        <div class="widget-grid" style="margin-bottom: 24px;">
-            <div class="widget-box"><span>Выполнено</span><p id="stats-done">0</p></div>
-            <div class="widget-box"><span>В обработке</span><p id="stats-review" style="color: #ff9500;">0</p></div>
-        </div>
-
-        <button class="ios-btn" onclick="openWithdrawModal()">Вывод средств</button>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="wdCancel">Отмена</button>
+      <button class="btn btn-primary" id="wdSubmit">Отправить</button>
     </div>
+  </div>
+</div>
 
-    <!-- МОДАЛКА: РЕЙТИНГ -->
-    <div class="modal-overlay" id="rating-modal">
-        <div class="modal-sheet">
-            <div class="modal-header">
-                <h3>Таблица лидеров</h3>
-                <div class="close-btn" onclick="closeModal('rating-modal')">Закрыть</div>
-            </div>
-            <div class="modal-body">
-                <p class="card-desc">Топ участников по заработанным средствам:</p>
-                <div class="leaderboard-list">
-                    <div class="leader-item">
-                        <span class="leader-rank">🥇 1</span>
-                        <span class="leader-name">@crypto_king</span>
-                        <span class="leader-score">94,150 ₽</span>
-                    </div>
-                    <div class="leader-item">
-                        <span class="leader-rank">🥈 2</span>
-                        <span class="leader-name">@marina_invest</span>
-                        <span class="leader-score">82,400 ₽</span>
-                    </div>
-                    <div class="leader-item">
-                        <span class="leader-rank">🥉 3</span>
-                        <span class="leader-name">@ton_maker</span>
-                        <span class="leader-score">71,900 ₽</span>
-                    </div>
-                    <div class="leader-item">
-                        <span class="leader-rank">4</span>
-                        <span class="leader-name">@dmitry_b</span>
-                        <span class="leader-score">65,110 ₽</span>
-                    </div>
-                    <div class="leader-item" style="justify-content: center; border: none; background: transparent; padding: 4px;">• • •</div>
-                    <div class="leader-item me">
-                        <span class="leader-rank">Вы</span>
-                        <span class="leader-name" id="leader-me-name">Пользователь</span>
-                        <span class="leader-score" id="leader-me-score" style="color:#34c759;">0.00 ₽</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- МОДАЛКА ИСТОРИИ -->
+<div class="modal-overlay" id="historyModal">
+  <div class="modal">
+    <div class="modal-title">📜 История операций</div>
+    <div class="modal-sub">Последние 20 операций</div>
+    <div id="historyList" style="max-height: 400px; overflow-y: auto;"></div>
+    <div class="modal-actions" style="margin-top: 16px;">
+      <button class="btn btn-primary" id="histClose">Закрыть</button>
     </div>
+  </div>
+</div>
 
-    <!-- МОДАЛКА: ОТПРАВКА ОТЧЕТА -->
-    <div class="modal-overlay" id="report-modal">
-        <div class="modal-sheet">
-            <div class="modal-header">
-                <h3 id="modal-task-title">Отчёт по заданию</h3>
-                <div class="close-btn" onclick="closeModal('report-modal')">Отмена</div>
-            </div>
-            <div class="modal-body">
-                <textarea id="report-text" placeholder="Введите ваш никнейм или комментарий..."></textarea>
-                <div class="upload-container" style="margin-bottom: 16px;">
-                    <input type="file" id="file-input" accept="image/*" style="display:none;" onchange="previewScreenshot(event)">
-                    <button class="ios-btn" onclick="document.getElementById('file-input').click()">📸 Выбрать скриншот из галереи</button>
-                    <img id="preview-img" class="screenshot-preview" src="" alt="Preview">
-                </div>
-                <button class="ios-btn green" onclick="submitReport()">Отправить отчёт</button>
-            </div>
-        </div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= TELEGRAM ================= */
+const tg = window.Telegram?.WebApp;
+if (tg) {
+  tg.ready();
+  tg.expand();
+  tg.setHeaderColor('#08080f');
+  tg.setBackgroundColor('#08080f');
+}
+function haptic(style = 'light') { try { tg?.HapticFeedback?.impactOccurred(style); } catch(e) {} }
+function notif(type = 'success') { try { tg?.HapticFeedback?.notificationOccurred(type); } catch(e) {} }
+
+/* ================= СОСТОЯНИЕ ================= */
+const STORAGE_KEY = 'earnhub_state_v1';
+let state = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') || {
+  balance: 0,
+  level: 1,
+  refs: 0,
+  doneTasks: [],
+  pendingTasks: [],
+  history: [],
+  withdrawals: []
+};
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+function addHistory(text, amount, type = 'earn') {
+  state.history.unshift({
+    text,
+    amount,
+    type,
+    date: new Date().toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+  });
+  if (state.history.length > 50) state.history = state.history.slice(0, 50);
+}
+function updateBalance() {
+  document.getElementById('balance').textContent = state.balance.toLocaleString('ru-RU');
+  document.getElementById('statBalance').textContent = state.balance.toLocaleString('ru-RU');
+  document.getElementById('level').textContent = state.level;
+  document.getElementById('statLevel').textContent = state.level;
+  document.getElementById('statRefs').textContent = state.refs;
+}
+
+/* ================= ПОЛЬЗОВАТЕЛЬ ================= */
+const user = tg?.initDataUnsafe?.user;
+const userName = user?.first_name || 'Гость';
+const userId = user?.id || 'demo';
+if (user) {
+  const init = userName[0].toUpperCase();
+  document.getElementById('username').textContent = userName;
+  document.getElementById('avatar').textContent = init;
+  document.getElementById('profileAvatar').textContent = init;
+  document.getElementById('profileName').textContent = userName;
+  document.getElementById('profileId').textContent = 'ID: ' + userId;
+}
+
+/* ================= ТОСТ ================= */
+const toastEl = document.getElementById('toast');
+let toastTimer;
+function showToast(text, type = 'success') {
+  toastEl.textContent = text;
+  toastEl.className = 'toast show ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { toastEl.className = 'toast ' + type; }, 2400);
+}
+
+/* ================= НАВИГАЦИЯ ================= */
+function goTo(screen) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + screen)?.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.screen === screen));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+document.querySelectorAll('.nav-item').forEach(n => n.addEventListener('click', () => { haptic('light'); goTo(n.dataset.screen); }));
+document.querySelectorAll('[data-goto]').forEach(el => el.addEventListener('click', () => { haptic('light'); goTo(el.dataset.goto); }));
+
+/* ================= ЗАДАНИЯ ================= */
+const TASKS = [
+  { id: 't1', icon: '📢', title: 'Подписка на @earnhub_channel', sub: 'Проверка ~30 сек', reward: 150, type: 'auto', url: 'https://t.me/telegram' },
+  { id: 't2', icon: '👀', title: 'Просмотр поста', sub: '10 секунд', reward: 80, type: 'auto', url: 'https://t.me/telegram' },
+  { id: 't3', icon: '🤝', title: 'Пригласи друга', sub: 'За каждого реферала', reward: 300, type: 'auto' },
+  { id: 't4', icon: '🎮', title: 'Установи приложение', sub: 'Игра из каталога', reward: 500, type: 'manual' },
+  { id: 't5', icon: '⭐', title: 'Оцени бота', sub: 'Оставить отзыв', reward: 250, type: 'manual' },
+  { id: 't6', icon: '🎁', title: 'Ежедневный бонус', sub: 'Раз в 24 часа', reward: 100, type: 'auto' },
+  { id: 't7', icon: '📸', title: 'Подписка на Instagram', sub: 'Ручная проверка', reward: 400, type: 'manual' },
+  { id: 't8', icon: '🎬', title: 'Подписка на YouTube', sub: 'Ручная проверка', reward: 350, type: 'manual' }
+];
+
+function renderTask(task, container) {
+  const isDone = state.doneTasks.includes(task.id);
+  const isPending = state.pendingTasks.includes(task.id);
+  const el = document.createElement('div');
+  el.className = 'task' + (isDone ? ' done' : '') + (isPending ? ' pending' : '');
+  el.innerHTML = `
+    <div class="task-icon">${task.icon}</div>
+    <div class="task-info">
+      <div class="task-title">${task.title}</div>
+      <div class="task-sub">${task.sub}</div>
     </div>
-
-    <!-- МОДАЛКА: ВЫВОД СРЕДСТВ -->
-    <div class="modal-overlay" id="withdraw-modal">
-        <div class="modal-sheet">
-            <div class="modal-header">
-                <h3>Вывод баланса</h3>
-                <div class="close-btn" onclick="closeModal('withdraw-modal')">Закрыть</div>
-            </div>
-            <div class="modal-body">
-                <p class="card-desc" style="margin-bottom:10px;">Выберите способ выплаты:</p>
-                <div class="payment-methods">
-                    <div class="payment-type active" onclick="setPaymentMethod('xrocket', 'Юзернейм или адрес кошелька в xRocket')">xRocket</div>
-                    <div class="payment-type" onclick="setPaymentMethod('cryptobot', 'Ваш Telegram ID или адрес в @CryptoBot')">CryptoBot</div>
-                    <div class="payment-type" onclick="setPaymentMethod('card', 'Номер банковской карты (16 знаков)')">Банк. карта</div>
-                    <div class="payment-type" onclick="setPaymentMethod('crypto', 'Адрес кошелька (USDT TRC-20, TON, BTC)')">Криптовалюта</div>
-                </div>
-                <div class="input-group" style="margin-bottom: 12px;">
-                    <input type="number" id="withdraw-amount" placeholder="Сумма вывода (₽)">
-                </div>
-                <div class="input-group" style="margin-bottom: 16px;">
-                    <input type="text" id="withdraw-wallet" placeholder="Юзернейм или адрес кошелька в xRocket">
-                </div>
-                <button class="ios-btn green" onclick="processWithdraw()">Подтвердить выплату</button>
-            </div>
-        </div>
+    <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+      <div class="task-reward">${isDone ? '✅' : isPending ? '⏳' : '+' + task.reward + ' ⭐'}</div>
+      ${task.type === 'manual' ? '<div class="task-badge manual">Проверка</div>' : ''}
     </div>
+  `;
+  el.addEventListener('click', () => handleTaskClick(task, el));
+  container.appendChild(el);
+}
 
-    <!-- TAB BAR -->
-    <div class="tab-bar">
-        <div class="tab-item active" onclick="switchTab('tasks', this)">
-            <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
-            Задания
-        </div>
-        <div class="tab-item" onclick="switchTab('bonuses', this)">
-            <svg viewBox="0 0 24 24"><path d="M12 22V8M5 12H2a2 2 0 002 2h16a2 2 0 002-2h-3M12 7a3 3 0 10-3-3M12 7a3 3 0 113-3"></path></svg>
-            Бонусы
-        </div>
-        <div class="tab-item" onclick="switchTab('profile', this)">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"></circle><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"></path></svg>
-            Профиль
-        </div>
+function handleTaskClick(task, el) {
+  if (state.doneTasks.includes(task.id)) return;
+  if (state.pendingTasks.includes(task.id)) {
+    showToast('⏳ Задание уже на проверке', 'warn');
+    return;
+  }
+  haptic('medium');
+
+  if (task.type === 'auto') {
+    tg?.showPopup?.({
+      title: '🎯 ' + task.title,
+      message: 'Выполнить задание и получить +' + task.reward + ' ⭐?',
+      buttons: [
+        { id: 'yes', type: 'default', text: '✅ Выполнить' },
+        { id: 'no', type: 'cancel', text: 'Отмена' }
+      ]
+    }, (btnId) => {
+      if (btnId === 'yes') {
+        // для заданий с url — открываем
+        if (task.url) tg?.openTelegramLink?.(task.url);
+        setTimeout(() => {
+          state.balance += task.reward;
+          state.doneTasks.push(task.id);
+          addHistory(task.title, task.reward, 'earn');
+          checkLevel();
+          save();
+          updateBalance();
+          el.classList.add('done');
+          notif('success');
+          showToast('+' + task.reward + ' ⭐ начислено!', 'success');
+        }, task.url ? 1500 : 0);
+      }
+    });
+  } else {
+    // РУЧНАЯ ПРОВЕРКА
+    showManualTaskModal(task, el);
+  }
+}
+
+function showManualTaskModal(task, el) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay show';
+  overlay.innerHTML = `
+    <div class="modal">
+      <div class="modal-title">👤 ${task.title}</div>
+      <div class="modal-sub">Награда: +${task.reward} ⭐</div>
+      <div class="modal-note">
+        Это задание проверяется вручную. Отправьте доказательство выполнения (скриншот, ссылку или описание) — администратор проверит в течение 24 часов.
+      </div>
+      <input type="text" class="modal-input" id="manualProof" placeholder="Ссылка или описание" />
+      <input type="text" class="modal-input" id="manualComment" placeholder="Комментарий (необязательно)" />
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="mCancel">Отмена</button>
+        <button class="btn btn-primary" id="mSend">📤 Отправить</button>
+      </div>
     </div>
+  `;
+  document.body.appendChild(overlay);
 
-    <script>
-        // Чистый стейт — у каждого пользователя все начинается с нуля
-        let appState = {
-            tgId: Math.floor(Math.random() * 100000000), // Временный ID на случай открытия в браузере
-            balance: 0.00,
-            tasksDone: 0,
-            tasksReview: 0,
-            currentTaskIndex: null,
-            selectedPaymentMethod: 'xrocket',
-            currentFilter: 'all',
-            refCount: 0,
-            refIncome: 0.00,
-            tasks: [
-                { id: 1, title: "Подписка на Telegram-канал", desc: "Перейдите в канал спонсора, подпишитесь и пришлите скриншот.", reward: 45, badge: "Новое", type: "blue", status: "ready" },
-                { id: 2, title: "Регистрация на платформе", desc: "Зарегистрируйте аккаунт по реф-ссылке и сделайте скриншот личного кабинета.", reward: 120, badge: "Высокая оплата", type: "gold", status: "ready" },
-                { id: 3, title: "Ежедневный чек-ин", desc: "Подтвердите присутствие в приложении. Скриншот делать не обязательно.", reward: 15, badge: "Ежедневное", type: "red", status: "ready" }
-            ]
-        };
+  overlay.querySelector('#mCancel').onclick = () => overlay.remove();
+  overlay.querySelector('#mSend').onclick = () => {
+    const proof = overlay.querySelector('#manualProof').value.trim();
+    if (!proof) { showToast('⚠️ Укажите доказательство', 'warn'); return; }
 
-        // ТГ-градиенты для юзеров без аватарок
-        const tgGradients = [
-            "linear-gradient(135deg, #ff453a, #ff9f0a)",
-            "linear-gradient(135deg, #32d74b, #63da38)",
-            "linear-gradient(135deg, #007aff, #0a84ff)",
-            "linear-gradient(135deg, #bf5af2, #da8fff)",
-            "linear-gradient(135deg, #ff375f, #ff6480)",
-            "linear-gradient(135deg, #5ac8fa, #66d3fa)"
-        ];
+    // Отправляем данные админу через бота
+    sendToAdmin({
+      type: 'manual_task',
+      userId, userName,
+      taskId: task.id,
+      taskTitle: task.title,
+      reward: task.reward,
+      proof,
+      comment: overlay.querySelector('#manualComment').value.trim()
+    });
 
-        // Нативная синхронизация профиля с Telegram API
-        function initTelegramProfile() {
-            let name = "Анонимный Гость";
-            let username = "@username_unknown";
-            let firstLetter = "А";
-            
-            // Проверяем доступность Telegram WebApp SDK
-            if (window.Telegram && window.Telegram.WebApp) {
-                const tg = window.Telegram.WebApp;
-                tg.ready();
-                tg.expand();
+    state.pendingTasks.push(task.id);
+    save();
+    el.classList.add('pending');
+    el.querySelector('.task-reward').textContent = '⏳';
+    overlay.remove();
+    notif('success');
+    showToast('📤 Отправлено на проверку!', 'success');
+  };
+}
 
-                const user = tg.initDataUnsafe?.user;
-                if (user) {
-                    appState.tgId = user.id;
-                    name = `${user.first_name || ''} ${user.last_name || ''}`.trim() || "Telegram User";
-                    username = user.username ? `@${user.username}` : `ID: ${user.id}`;
-                    firstLetter = name.charAt(0).toUpperCase();
+/* ================= ОТПРАВКА В БОТ ================= */
+function sendToAdmin(data) {
+  const payload = JSON.stringify(data);
+  if (tg?.sendData) {
+    // Telegram WebApp sendData — передаст данные боту как web_app_data
+    tg.sendData(payload);
+  } else {
+    // Фолбэк для теста в браузере
+    console.log('[sendToAdmin]', data);
+  }
+}
 
-                    const avatarContainer = document.getElementById('user-avatar-container');
-                    
-                    if (user.photo_url) {
-                        // Если ТГ вернул прямую ссылку на аватарку
-                        avatarContainer.innerHTML = `<img src="${user.photo_url}" alt="Avatar">`;
-                    } else {
-                        // Генерация уникального градиента на основе telegram ID (как в самом ТГ)
-                        const gradientIndex = user.id % tgGradients.length;
-                        avatarContainer.style.background = tgGradients[gradientIndex];
-                        avatarContainer.innerText = firstLetter;
-                    }
-                }
-            } else {
-                // Браузерный режим (без ТГ) - ставим красивый случайный градиент
-                document.getElementById('user-avatar-container').style.background = tgGradients[3];
-                document.getElementById('user-avatar-container').innerText = "Б";
-                name = "Браузер Тест";
-                username = "@localhost_user";
-            }
+/* ================= ОТРИСОВКА ЗАДАНИЙ ================= */
+function renderAllTasks() {
+  const homeContainer = document.getElementById('homeTasks');
+  const tasksContainer = document.getElementById('tasksList');
+  homeContainer.innerHTML = '';
+  tasksContainer.innerHTML = '';
+  TASKS.slice(0, 3).forEach(t => renderTask(t, homeContainer));
+  TASKS.forEach(t => renderTask(t, tasksContainer));
+}
+renderAllTasks();
 
-            // Выводим данные на экраны
-            document.getElementById('user-name').innerText = name;
-            document.getElementById('user-username').innerText = username;
-            document.getElementById('leader-me-name').innerText = `${name} (Вы)`;
-            
-            initRefLink();
-            updateProfileDOM();
+document.querySelectorAll('[data-filter]').forEach(tab => {
+  tab.addEventListener('click', () => {
+    haptic('light');
+    document.querySelectorAll('[data-filter]').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const filter = tab.dataset.filter;
+    const tasksContainer = document.getElementById('tasksList');
+    tasksContainer.innerHTML = '';
+    TASKS.filter(t => filter === 'all' || t.type === filter).forEach(t => renderTask(t, tasksContainer));
+  });
+});
+
+/* ================= МАГАЗИН ================= */
+const shopItems = {
+  stars: [
+    { icon: '⭐', title: '50 звёзд', sub: 'Быстрая покупка', price: '75 ₽' },
+    { icon: '🌟', title: '100 звёзд', sub: 'Выгодно', price: '149 ₽', hit: true },
+    { icon: '💫', title: '250 звёзд', sub: 'Для подарков', price: '349 ₽' },
+    { icon: '✨', title: '500 звёзд', sub: 'Максимум', price: '649 ₽' },
+    { icon: '🌠', title: '1000 звёзд', sub: 'Для блогеров', price: '1 199 ₽', hit: true },
+    { icon: '🎇', title: '2500 звёзд', sub: 'Для каналов', price: '2 799 ₽' }
+  ],
+  premium: [
+    { icon: '👑', title: 'Premium 1 мес', sub: 'Все функции', price: '199 ₽', hit: true },
+    { icon: '👑', title: 'Premium 3 мес', sub: 'Скидка 15%', price: '499 ₽' },
+    { icon: '👑', title: 'Premium 6 мес', sub: 'Скидка 25%', price: '899 ₽' },
+    { icon: '👑', title: 'Premium 12 мес', sub: 'Лучшая цена', price: '1 599 ₽', hit: true },
+    { icon: '🎁', title: 'Premium в подарок', sub: 'Другу', price: '199 ₽' },
+    { icon: '💎', title: 'Premium + 500 ⭐', sub: 'Комбо', price: '599 ₽' }
+  ],
+  donate: [
+    { icon: '🎁', title: 'Донат 50 ⭐', sub: 'Поддержка', price: '99 ₽' },
+    { icon: '💝', title: 'Донат 100 ⭐', sub: 'Популярно', price: '179 ₽', hit: true },
+    { icon: '❤️', title: 'Донат 250 ⭐', sub: 'Щедро', price: '399 ₽' },
+    { icon: '💖', title: 'Донат 500 ⭐', sub: 'Максимум', price: '749 ₽' },
+    { icon: '🚀', title: 'Буст канала', sub: '3 месяца', price: '299 ₽' },
+    { icon: '🎯', title: 'Реклама в боте', sub: '1 день', price: '499 ₽' }
+  ],
+  games: [
+    { icon: '🎮', title: 'Игровая валюта', sub: '1000 монет', price: '99 ₽' },
+    { icon: '🎰', title: 'Спины x10', sub: 'Колесо', price: '149 ₽', hit: true },
+    { icon: '🎲', title: 'Кубики x20', sub: 'Броски', price: '199 ₽' },
+    { icon: '⚡', title: 'Ускорение x2', sub: 'На 24 часа', price: '249 ₽' },
+    { icon: '🏆', title: 'VIP статус', sub: 'Навсегда', price: '999 ₽', hit: true },
+    { icon: '💎', title: 'Премиум-набор', sub: 'Всё сразу', price: '1 499 ₽' }
+  ]
+};
+
+function renderShop(category = 'stars') {
+  const grid = document.getElementById('shopGrid');
+  grid.innerHTML = '';
+  shopItems[category].forEach(item => {
+    const el = document.createElement('div');
+    el.className = 'shop-item' + (item.hit ? ' hit' : '');
+    el.innerHTML = `
+      <div class="shop-icon">${item.icon}</div>
+      <div class="shop-title">${item.title}</div>
+      <div class="shop-sub">${item.sub}</div>
+      <div class="shop-price">${item.price}</div>
+    `;
+    el.addEventListener('click', () => {
+      haptic('medium');
+      tg?.showPopup?.({
+        title: item.title,
+        message: 'Купить за ' + item.price + '?',
+        buttons: [
+          { id: 'buy', type: 'default', text: '💳 Купить' },
+          { id: 'cancel', type: 'cancel', text: 'Отмена' }
+        ]
+      }, (id) => {
+        if (id === 'buy') {
+          sendToAdmin({
+            type: 'purchase',
+            userId, userName,
+            item: item.title,
+            price: item.price
+          });
+          notif('success');
+          showToast('✅ Заявка отправлена!', 'success');
         }
+      });
+    });
+    grid.appendChild(el);
+  });
+}
+renderShop('stars');
+document.querySelectorAll('[data-shop]').forEach(tab => {
+  tab.addEventListener('click', () => {
+    haptic('light');
+    document.querySelectorAll('[data-shop]').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    renderShop(tab.dataset.shop);
+  });
+});
 
-        function initRefLink() {
-            document.getElementById('refLink').value = `https://t.me/Tasklau_bot?start=ref_${appState.tgId}`;
-        }
+/* ================= ИГРЫ ================= */
+let wheelRotation = 0;
+const spinBtn = document.getElementById('spinBtn');
+const wheel = document.getElementById('wheel');
+spinBtn.addEventListener('click', () => {
+  if (state.balance < 50) { notif('error'); showToast('Недостаточно ⭐', 'error'); return; }
+  haptic('heavy');
+  state.balance -= 50;
+  addHistory('Крутка колеса', -50, 'spend');
+  updateBalance(); save();
+  const prizes = [0, 10, 25, 50, 75, 100, 150, 500];
+  const prize = prizes[Math.floor(Math.random() * prizes.length)];
+  wheelRotation += 360 * 5 + Math.random() * 360;
+  wheel.style.transform = `rotate(${wheelRotation}deg)`;
+  spinBtn.disabled = true;
+  setTimeout(() => {
+    state.balance += prize;
+    if (prize > 0) addHistory('Выигрыш в колесе', prize, 'earn');
+    updateBalance(); save();
+    notif(prize > 0 ? 'success' : 'error');
+    showToast(prize > 0 ? `🎉 Выигрыш: +${prize} ⭐` : '😢 Пусто', prize > 0 ? 'success' : 'error');
+    spinBtn.disabled = false;
+  }, 3100);
+});
 
-        function simulateReferralEarning() {
-            let friendEarned = 500;
-            let bonus = friendEarned * 0.10;
-            
-            appState.refIncome += bonus;
-            appState.balance += bonus;
-            appState.refCount = Math.max(appState.refCount, 1); // Делаем минимум 1 рефа активным
-            
-            updateProfileDOM();
-            alert(`🎉 Твой реферал выполнил квест на ${friendEarned} ₽! Начислено 10% бонуса: +${bonus.toFixed(2)} ₽`);
-        }
+const diceBtn = document.getElementById('diceBtn');
+const diceEl = document.getElementById('dice');
+const diceFaces = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+diceBtn.addEventListener('click', () => {
+  if (state.balance < 100) { notif('error'); showToast('Недостаточно ⭐', 'error'); return; }
+  haptic('heavy');
+  state.balance -= 100;
+  addHistory('Ставка в кубике', -100, 'spend');
+  updateBalance(); save();
+  diceBtn.disabled = true;
+  let rolls = 0;
+  const interval = setInterval(() => {
+    diceEl.textContent = diceFaces[Math.floor(Math.random() * 6)];
+    diceEl.style.transform = `rotate(${Math.random() * 360}deg) scale(${1 + Math.random() * 0.3})`;
+    rolls++;
+    if (rolls > 12) {
+      clearInterval(interval);
+      const value = Math.floor(Math.random() * 6) + 1;
+      diceEl.textContent = diceFaces[value - 1];
+      const win = value >= 4;
+      const prize = win ? 200 : 0;
+      state.balance += prize;
+      if (win) addHistory('Победа в кубике', prize, 'earn');
+      updateBalance(); save();
+      notif(win ? 'success' : 'error');
+      showToast(win ? `🎉 Выпало ${value} — +200 ⭐!` : `😢 Выпало ${value}`, win ? 'success' : 'error');
+      diceBtn.disabled = false;
+    }
+  }, 100);
+});
 
-        function renderTasks() {
-            const container = document.getElementById('tasks-list');
-            container.innerHTML = '';
+/* ================= ПРОФИЛЬ ================= */
+document.getElementById('dailyBonus').addEventListener('click', () => {
+  const last = parseInt(localStorage.getItem('lastBonus') || '0', 10);
+  if (Date.now() - last < 24 * 60 * 60 * 1000) {
+    notif('error'); showToast('⏳ Бонус раз в 24 часа', 'error'); return;
+  }
+  haptic('heavy');
+  localStorage.setItem('lastBonus', Date.now());
+  state.balance += 100;
+  addHistory('Ежедневный бонус', 100, 'earn');
+  checkLevel(); save(); updateBalance();
+  notif('success');
+  showToast('🎁 +100 ⭐ получено!', 'success');
+});
 
-            let displayTasks = [...appState.tasks];
+document.getElementById('inviteBtn').addEventListener('click', () => {
+  haptic('medium');
+  const link = 'https://t.me/share/url?url=' + encodeURIComponent('https://t.me/YourBot?start=' + userId);
+  tg?.openTelegramLink?.(link) || window.open(link, '_blank');
+  showToast('🔗 Ссылка готова', 'success');
+});
 
-            if (appState.currentFilter === 'new') {
-                displayTasks = displayTasks.filter(t => t.badge === 'Новое' && t.status === 'ready');
-            } else if (appState.currentFilter === 'review') {
-                displayTasks = displayTasks.filter(t => t.status === 'review');
-            } else if (appState.currentFilter === 'expensive') {
-                displayTasks.sort((a, b) => b.reward - a.reward);
-            } else if (appState.currentFilter === 'cheap') {
-                displayTasks.sort((a, b) => a.reward - b.reward);
-            }
+function checkLevel() {
+  const newLevel = Math.floor(state.balance / 1000) + 1;
+  if (newLevel > state.level) {
+    state.level = newLevel;
+    showToast(`🎉 Новый уровень: ${newLevel}!`, 'success');
+  }
+}
 
-            if(displayTasks.length === 0) {
-                container.innerHTML = `<p class="card-desc" style="text-align:center; margin-top:20px; color:#72727a;">Нет подходящих заданий</p>`;
-                return;
-            }
+/* ================= ВЫВОД СРЕДСТВ ================= */
+const withdrawModal = document.getElementById('withdrawModal');
+let selectedMethod = 'card';
 
-            displayTasks.forEach((task) => {
-                let originalIndex = appState.tasks.findIndex(t => t.id === task.id);
-                
-                let btnHtml = task.status === 'ready' ? `<button class="ios-btn green" onclick="openReportModal(${originalIndex})">Выполнить</button>` :
-                              task.status === 'review' ? `<button class="ios-btn disabled">На проверке ⏳</button>` : 
-                              `<button class="ios-btn disabled" style="color:#34c759; border-color:transparent;">Выполнено ✓</button>`;
+function openWithdraw() {
+  haptic('medium');
+  if (state.balance < 1000) {
+    showToast('⚠️ Минимум 1000 ⭐ для вывода', 'warn');
+    return;
+  }
+  withdrawModal.classList.add('show');
+}
+document.getElementById('withdrawBtn').addEventListener('click', openWithdraw);
+document.getElementById('withdrawMenu').addEventListener('click', openWithdraw);
+document.getElementById('wdCancel').addEventListener('click', () => withdrawModal.classList.remove('show'));
 
-                container.innerHTML += `
-                    <div class="ios-card">
-                        <div class="card-top"><div class="card-title">${task.title}</div><div class="card-reward">+${task.reward} ₽</div></div>
-                        <div class="badge ${task.type}">${task.badge}</div>
-                        <p class="card-desc">${task.desc}</p>
-                        ${btnHtml}
-                    </div>
-                `;
-            });
-            updateProfileDOM();
-        }
+document.querySelectorAll('.method').forEach(m => {
+  m.addEventListener('click', () => {
+    haptic('light');
+    document.querySelectorAll('.method').forEach(x => x.classList.remove('selected'));
+    m.classList.add('selected');
+    selectedMethod = m.dataset.method;
+  });
+});
 
-        function filterTasks(filterType, element) {
-            appState.currentFilter = filterType;
-            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-            element.classList.add('active');
-            renderTasks();
-        }
+document.getElementById('wdSubmit').addEventListener('click', () => {
+  const amount = parseInt(document.getElementById('wdAmount').value, 10);
+  const details = document.getElementById('wdDetails').value.trim();
 
-        function updateProfileDOM() {
-            const formattedBalance = `${appState.balance.toFixed(2)} ₽`;
-            
-            document.getElementById('user-balance').innerText = formattedBalance;
-            document.getElementById('leader-me-score').innerText = formattedBalance;
-            
-            document.getElementById('stats-done').innerText = appState.tasksDone;
-            document.getElementById('stats-review').innerText = appState.tasksReview;
-            
-            document.getElementById('ref-count').innerText = appState.refCount;
-            document.getElementById('ref-income').innerText = `+${appState.refIncome.toFixed(2)} ₽`;
-        }
+  if (!amount || amount < 1000) { showToast('⚠️ Минимум 1000 ⭐', 'warn'); return; }
+  if (amount > state.balance) { showToast('⚠️ Недостаточно средств', 'warn'); return; }
+  if (!details) { showToast('⚠️ Укажите реквизиты', 'warn'); return; }
 
-        function switchTab(screenId, tabElement) {
-            document.querySelectorAll('.screen-container').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-            document.getElementById('screen-' + screenId).classList.add('active');
-            tabElement.classList.add('active');
-        }
+  haptic('heavy');
+  // Отправляем заявку админу
+  sendToAdmin({
+    type: 'withdraw',
+    userId, userName,
+    amount,
+    method: selectedMethod,
+    details
+  });
 
-        function openRatingModal() { document.getElementById('rating-modal').classList.add('active'); }
+  state.balance -= amount;
+  state.withdrawals.push({ amount, method: selectedMethod, details, status: 'pending', date: Date.now() });
+  addHistory('Заявка на вывод', -amount, 'withdraw');
+  save(); updateBalance();
 
-        function openReportModal(index) {
-            appState.currentTaskIndex = index;
-            document.getElementById('modal-task-title').innerText = appState.tasks[index].title;
-            document.getElementById('report-text').value = '';
-            document.getElementById('file-input').value = '';
-            document.getElementById('preview-img').style.display = 'none';
-            document.getElementById('report-modal').classList.add('active');
-        }
+  withdrawModal.classList.remove('show');
+  document.getElementById('wdAmount').value = '';
+  document.getElementById('wdDetails').value = '';
+  notif('success');
+  showToast('📤 Заявка на вывод отправлена!', 'success');
+});
 
-        function previewScreenshot(event) {
-            const reader = new FileReader();
-            reader.onload = function() {
-                const preview = document.getElementById('preview-img');
-                preview.src = reader.result;
-                preview.style.display = 'block';
-            }
-            if(event.target.files[0]) reader.readAsDataURL(event.target.files[0]);
-        }
+/* ================= ИСТОРИЯ ================= */
+const historyModal = document.getElementById('historyModal');
+document.getElementById('historyBtn').addEventListener('click', () => {
+  haptic('light');
+  const list = document.getElementById('historyList');
+  list.innerHTML = '';
+  if (state.history.length === 0) {
+    list.innerHTML = '<div style="text-align:center;color:var(--text-2);padding:30px 0;">Пока пусто</div>';
+  } else {
+    state.history.forEach(h => {
+      const el = document.createElement('div');
+      el.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--card);border-radius:12px;margin-bottom:6px;';
+      const color = h.type === 'earn' ? 'var(--success)' : h.type === 'spend' ? 'var(--danger)' : 'var(--warn)';
+      const sign = h.amount > 0 ? '+' : '';
+      el.innerHTML = `
+        <div>
+          <div style="font-size:14px;font-weight:600;">${h.text}</div>
+          <div style="font-size:11px;color:var(--text-2);margin-top:2px;">${h.date}</div>
+        </div>
+        <div style="font-weight:800;color:${color};">${sign}${h.amount} ⭐</div>
+      `;
+      list.appendChild(el);
+    });
+  }
+  historyModal.classList.add('show');
+});
+document.getElementById('histClose').addEventListener('click', () => historyModal.classList.remove('show'));
 
-        function submitReport() {
-            let task = appState.tasks[appState.currentTaskIndex];
-            task.status = 'review';
-            appState.tasksReview++;
-            closeModal('report-modal');
-            renderTasks();
+/* ================= УВЕДОМЛЕНИЯ ================= */
+document.getElementById('notifBtn').addEventListener('click', () => {
+  haptic('light');
+  showToast('🔔 Новых уведомлений нет', 'success');
+});
 
-            setTimeout(() => {
-                task.status = 'completed';
-                appState.tasksReview--;
-                appState.tasksDone++;
-                appState.balance += task.reward;
-                renderTasks();
-            }, 5000);
-        }
+/* ================= MAIN BUTTON ================= */
+if (tg?.MainButton) {
+  tg.MainButton.setText('🚀 ЗАРАБОТАТЬ');
+  tg.MainButton.color = '#7c5cff';
+  tg.MainButton.textColor = '#ffffff';
+  tg.MainButton.show();
+  tg.MainButton.onClick(() => { haptic('heavy'); goTo('tasks'); });
+}
 
-        function openWithdrawModal() {
-            document.getElementById('withdraw-amount').value = '';
-            document.getElementById('withdraw-wallet').value = '';
-            document.getElementById('withdraw-modal').classList.add('active');
-        }
-
-        function setPaymentMethod(method, placeholderText) {
-            appState.selectedPaymentMethod = method;
-            document.querySelectorAll('.payment-type').forEach(el => el.classList.remove('active'));
-            event.target.classList.add('active');
-            document.getElementById('withdraw-wallet').placeholder = placeholderText;
-        }
-
-        function processWithdraw() {
-            const amount = parseFloat(document.getElementById('withdraw-amount').value);
-            const wallet = document.getElementById('withdraw-wallet').value.trim();
-
-            if(!amount || !wallet) { alert('Пожалуйста, заполните реквизиты и сумму!'); return; }
-            if(amount > appState.balance) { alert('Недостаточно средств на балансе!'); return; }
-
-            appState.balance -= amount;
-            alert(`✅ Заявка на вывод отправлена через систему: ${appState.selectedPaymentMethod.toUpperCase()}!`);
-            closeModal('withdraw-modal');
-            updateProfileDOM();
-        }
-
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-        
-        function copyLink() {
-            const link = document.getElementById("refLink");
-            link.select();
-            navigator.clipboard.writeText(link.value);
-            alert("🔗 Ваша реферальная ссылка скопирована!");
-        }
-
-        window.onload = function() {
-            initTelegramProfile();
-            renderTasks();
-        };
-    </script>
+updateBalance();
+</script>
 </body>
-</html>
+</HTML>
